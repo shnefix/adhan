@@ -154,3 +154,7 @@ astronomical calculation run off the receiver callback. Recovery reconstructs
 the bounded request-code set so a disabled plan can cancel alarms from the
 previous horizon. Manufacturer battery restrictions and physical delivery
 still require device verification.
+
+The Settings destination exposes exact-alarm and notification permission status
+with links to the relevant Android system settings pages. It does not claim
+that a permission grant guarantees delivery on every manufacturer image.

@@ -97,3 +97,5 @@ All notable changes, fixes, and milestones across the 10 stages of the Prayer Al
   today and tomorrow, with explicit scheduler failure results.
 - Added broadcast recovery for boot, date/time/timezone changes, and package
   replacement using the bounded reconciliation horizon.
+- Replaced the Settings placeholder with exact-alarm and notification
+  permission status and actionable system-settings links.

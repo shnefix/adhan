@@ -38,6 +38,7 @@ import com.example.prayeralarm.ui.home.HomeViewModel
 import com.example.prayeralarm.ui.alarms.AlarmPlanScreen
 import com.example.prayeralarm.ui.alarms.AlarmPlanViewModel
 import com.example.prayeralarm.alarm.PrayerAlarmSchedulingViewModel
+import com.example.prayeralarm.ui.settings.SettingsScreen
 import com.example.prayeralarm.ui.locations.LocationsScreen
 import com.example.prayeralarm.ui.locations.LocationsViewModel
 import com.example.prayeralarm.ui.theme.GoldPrimary
@@ -181,10 +182,7 @@ fun MainScreen() {
             }
 
             composable(Screen.Settings.route) {
-                PlaceholderScreen(
-                    title = "Application Settings",
-                    subtitle = "Calculation preferences & alert configurations scheduled for Stage 10."
-                )
+                SettingsScreen()
             }
         }
     }

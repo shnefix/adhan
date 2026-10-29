@@ -83,3 +83,6 @@ All notable changes, fixes, and milestones across the 10 stages of the Prayer Al
   location selects a remaining location or clears the selection when empty.
 - Added a deterministic, Android-independent Fajr alarm-plan generator with
   before, at/after, combined, disabled, validation, and midnight coverage.
+- Added a permission-aware exact-alarm scheduler, notification channel setup,
+  and a manifest-registered prayer alarm receiver. Settings persistence,
+  reconciliation, and reboot rescheduling remain future work.

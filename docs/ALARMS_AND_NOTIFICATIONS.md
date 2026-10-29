@@ -110,3 +110,19 @@ total number of alarms, including Fajr when the generated schedule reaches it.
 The generator is independent of Android scheduling APIs, so invalid counts,
 intervals, disabled plans, duplicate timestamps, and midnight date changes can
 be tested using fixed values before any `AlarmManager` integration is added.
+
+## Native scheduling boundary
+
+`AndroidAlarmScheduler` is the Android boundary for a tested alarm plan. Each
+request carries an explicit non-negative `requestCode`, trigger timestamp,
+prayer name, and location name. The request code is used as the
+`PendingIntent` identity so different alarms do not overwrite each other.
+Scheduling uses `setExactAndAllowWhileIdle` only when Android reports exact
+alarm access; otherwise it returns `ExactAlarmPermissionRequired` for the UI to
+explain and remediate.
+
+`PrayerAlarmReceiver` posts a high-importance notification and exits when
+`POST_NOTIFICATIONS` is denied. Notification channels are created from the
+Application and defensively by the receiver. This checkpoint does not yet
+persist alarm plans, expose alarm settings, reconcile obsolete schedules, or
+reschedule after reboot; those require the settings and persistence layers.

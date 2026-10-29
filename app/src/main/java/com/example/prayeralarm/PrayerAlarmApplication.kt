@@ -5,6 +5,7 @@ import com.example.prayeralarm.data.local.PrayerAlarmDatabase
 import com.example.prayeralarm.data.preferences.UserPreferencesManager
 import com.example.prayeralarm.data.repository.LocationRepository
 import com.example.prayeralarm.data.repository.LocationRepositoryImpl
+import com.example.prayeralarm.alarm.NotificationChannels
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -37,6 +38,7 @@ class PrayerAlarmApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        NotificationChannels.create(this)
         // Ensure default locations are seeded if empty
         applicationScope.launch {
             if (database.locationDao().getLocationCount() == 0) {

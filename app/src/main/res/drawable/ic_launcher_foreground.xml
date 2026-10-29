@@ -3,15 +3,38 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
     <path
         android:fillColor="#0B132B"
         android:pathData="M0,0h108v108h-108z" />
-    <!-- Crescent & Star accent in gold -->
-    <path
-        android:fillColor="#F4B41A"
-        android:pathData="M54,28c-14.36,0 -26,11.64 -26,26s11.64,26 26,26c6.24,0 11.96,-2.2 16.48,-5.88 -12.18,-1.2 -21.68,-11.44 -21.68,-23.92 0,-12.48 9.5,-22.72 21.68,-23.92 -4.52,-3.68 -10.24,-5.88 -16.48,-5.88z" />
-    <path
-        android:fillColor="#F4B41A"
-        android:pathData="M68,48l2.2,4.6 5,0.7 -3.6,3.6 0.8,5 -4.4,-2.3 -4.4,2.3 0.8,-5 -3.6,-3.6 5,-0.7z" />
-</vector>
 
+    <path
+        android:fillColor="#E8B964"
+        android:pathData="M26,78 L26,70 A28,28 0 0 1 82,70 L82,78 Z" />
+
+    <path
+        android:fillColor="#E8B964"
+        android:pathData="M22,78h64v5h-64z" />
+
+    <path
+        android:fillColor="#0B132B"
+        android:pathData="M48,78 L48,71 A6,6 0 0 1 60,71 L60,78 Z" />
+
+    <path
+        android:pathData="M54,42 L54,37"
+        android:strokeColor="#E8B964"
+        android:strokeLineCap="round"
+        android:strokeWidth="2.5" />
+
+    <group
+        android:pivotX="54"
+        android:pivotY="54"
+        android:scaleX="0.24"
+        android:scaleY="0.24"
+        android:translateX="2"
+        android:translateY="-25">
+        <path
+            android:fillColor="#E8B964"
+            android:pathData="M54,28c-14.36,0 -26,11.64 -26,26s11.64,26 26,26c6.24,0 11.96,-2.2 16.48,-5.88 -12.18,-1.2 -21.68,-11.44 -21.68,-23.92 0,-12.48 9.5,-22.72 21.68,-23.92 -4.52,-3.68 -10.24,-5.88 -16.48,-5.88z" />
+    </group>
+</vector>

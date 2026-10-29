@@ -1,4 +1,4 @@
-package com.example.prayeralarm.data.notification
+﻿package com.example.prayeralarm.data.notification
 
 import android.Manifest
 import android.app.PendingIntent
@@ -116,6 +116,8 @@ object NotificationHelper {
             NotificationChannels.PRAYER_COUNTDOWN_CHANNEL
         ).apply {
             setSmallIcon(R.drawable.ic_notification)
+            setColor(ContextCompat.getColor(appContext, R.color.notification_bg))
+            setColorized(true)
             setContentTitle(prayerName)
             setContentText(contentText)
             setStyle(

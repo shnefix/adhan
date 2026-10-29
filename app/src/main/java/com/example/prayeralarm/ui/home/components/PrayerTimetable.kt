@@ -30,7 +30,6 @@ import com.example.prayeralarm.ui.theme.GoldPrimary
 import com.example.prayeralarm.ui.theme.NavyBorder
 import com.example.prayeralarm.ui.theme.NavyCard
 import com.example.prayeralarm.ui.theme.NavySurface
-import com.example.prayeralarm.ui.theme.OnGold
 import com.example.prayeralarm.ui.theme.TextPrimary
 import com.example.prayeralarm.ui.theme.TextSecondary
 import com.example.prayeralarm.ui.theme.TextTertiary
@@ -44,8 +43,6 @@ fun PrayerTimetable(
     onToggleNotification: (PrayerType) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Prayers before the highlighted one have already passed today.
-    // If nothing is highlighted (after Isha) they have all passed.
     val nextIndex = timetable.indexOfFirst { it.isNextPrayer }
 
     Column(
@@ -72,46 +69,52 @@ fun PrayerTimetableRow(
     isPassed: Boolean = false
 ) {
     val isNext = item.isNextPrayer
-    val shape = RoundedCornerShape(20.dp)
-    val contentColor = if (isPassed && !isNext) TextSecondary else TextPrimary
+    val shape = RoundedCornerShape(18.dp)
+    val nameColor = if (isPassed && !isNext) TextSecondary else TextPrimary
+    val timeColor = when {
+        isNext -> TextPrimary
+        isPassed -> TextTertiary
+        else -> TextSecondary
+    }
 
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .heightIn(min = 56.dp)
+            .heightIn(min = 52.dp)
             .clip(shape)
             .background(if (isNext) NavyCard else NavySurface)
-            .border(1.dp, if (isNext) GoldPrimary else NavyBorder, shape)
-            .padding(start = 20.dp, end = 8.dp),
+            .border(1.dp, if (isNext) GoldPrimary.copy(alpha = 0.6f) else NavyBorder, shape)
+            .padding(start = 18.dp, end = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
                 text = item.type.displayName,
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp),
-                color = contentColor,
+                style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp),
+                color = nameColor,
                 fontWeight = FontWeight.Bold
             )
             Text(
                 text = item.type.arabicName,
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp),
-                color = TextSecondary
+                style = MaterialTheme.typography.titleMedium.copy(fontSize = 13.sp),
+                color = TextTertiary
             )
             if (isNext) {
                 Text(
                     text = "NEXT",
                     style = MaterialTheme.typography.labelSmall,
-                    color = OnGold,
+                    color = GoldPrimary,
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = 10.sp,
+                    fontSize = 9.sp,
                     letterSpacing = 1.2.sp,
                     modifier = Modifier
                         .clip(RoundedCornerShape(99.dp))
-                        .background(GoldPrimary)
+                        .background(GoldPrimary.copy(alpha = 0.16f))
+                        .border(1.dp, GoldPrimary.copy(alpha = 0.5f), RoundedCornerShape(99.dp))
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                 )
             }
@@ -121,15 +124,15 @@ fun PrayerTimetableRow(
             Text(
                 text = item.time.format(timeFormatter),
                 style = MaterialTheme.typography.titleLarge.copy(
-                    fontSize = 22.sp,
+                    fontSize = 20.sp,
                     fontFeatureSettings = "tnum"
                 ),
-                color = contentColor,
+                color = timeColor,
                 fontWeight = FontWeight.Bold
             )
             IconButton(
                 onClick = onToggleNotification,
-                modifier = Modifier.size(48.dp)
+                modifier = Modifier.size(44.dp)
             ) {
                 Icon(
                     imageVector = if (item.isNotificationEnabled) {
@@ -140,7 +143,7 @@ fun PrayerTimetableRow(
                     contentDescription = "${item.type.displayName} alert " +
                         if (item.isNotificationEnabled) "on" else "off",
                     tint = if (item.isNotificationEnabled) GoldPrimary else TextTertiary,
-                    modifier = Modifier.size(22.dp)
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }

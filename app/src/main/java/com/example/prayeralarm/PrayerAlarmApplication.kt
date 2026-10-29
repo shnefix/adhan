@@ -40,7 +40,8 @@ class PrayerAlarmApplication : Application() {
         // Ensure default locations are seeded if empty
         applicationScope.launch {
             if (database.locationDao().getLocationCount() == 0) {
-                PrayerAlarmDatabase.populateInitialLocations(database.locationDao())
+                val locationId = PrayerAlarmDatabase.populateInitialLocations(database.locationDao())
+                preferencesManager.setSelectedLocationId(locationId)
             }
         }
     }

@@ -149,3 +149,19 @@ ViewModels are instantiated via custom `ViewModelProvider.Factory` implementatio
 2. How does Room's `Flow<List<T>>` know when to re-query SQLite and emit a new value?
 3. What is the difference between `autoGenerate = true` and manually providing primary keys?
 4. Why is DataStore Preferences preferred over storing the `is_active` flag in SQLite?
+
+## 7. Default locations and migration
+
+Fresh installations seed three benchmark locations: Mahdia, Kelibia, and Ariana.
+Mahdia is selected only when the database starts empty. Existing user locations
+and the existing DataStore selection are preserved.
+
+Room database version 2 includes an explicit `MIGRATION_1_2`. It inserts each
+preferred location only when the exact name, coordinates, and IANA timezone are
+not already present. The migration does not delete rows and does not overwrite
+`selected_location_id`, so upgrading an existing installation cannot silently
+change the user's active city.
+
+The migration uses `INSERT ... SELECT ... WHERE NOT EXISTS` because the original
+schema has no uniqueness constraint for location identity. Future schema changes
+should consider a deliberate identity constraint or a dedicated stable seed key.

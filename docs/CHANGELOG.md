@@ -70,3 +70,12 @@ All notable changes, fixes, and milestones across the 10 stages of the Prayer Al
 
 ### Status: Complete & Verified
 - Initial Gradle setup, AGP 8.7.3, Kotlin 2.0.21, KSP, Material 3 Dark Navy & Gold theme, and `docs/` documentation suite.
+# Changelog
+
+## 2026-10-29
+
+- Added Room migration `1 -> 2` for the preferred Mahdia, Kelibia, and Ariana
+  default locations.
+- Preserved existing saved locations and the DataStore active-location selection
+  during migration.
+- Fresh databases now select Mahdia and seed the three preferred locations.

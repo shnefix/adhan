@@ -1,20 +1,25 @@
 package com.example.prayeralarm.ui.navigation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,10 +27,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -33,20 +42,21 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.prayeralarm.PrayerAlarmApplication
-import com.example.prayeralarm.ui.home.HomeScreen
-import com.example.prayeralarm.ui.home.HomeViewModel
+import com.example.prayeralarm.alarm.PrayerAlarmSchedulingViewModel
 import com.example.prayeralarm.ui.alarms.AlarmPlanScreen
 import com.example.prayeralarm.ui.alarms.AlarmPlanViewModel
-import com.example.prayeralarm.alarm.PrayerAlarmSchedulingViewModel
-import com.example.prayeralarm.ui.settings.SettingsScreen
-import com.example.prayeralarm.ui.settings.SettingsViewModel
+import com.example.prayeralarm.ui.home.HomeScreen
+import com.example.prayeralarm.ui.home.HomeViewModel
 import com.example.prayeralarm.ui.locations.LocationsScreen
 import com.example.prayeralarm.ui.locations.LocationsViewModel
+import com.example.prayeralarm.ui.settings.SettingsScreen
+import com.example.prayeralarm.ui.settings.SettingsViewModel
 import com.example.prayeralarm.ui.theme.GoldPrimary
+import com.example.prayeralarm.ui.theme.NavyBar
+import com.example.prayeralarm.ui.theme.NavyBorder
 import com.example.prayeralarm.ui.theme.NavyCard
 import com.example.prayeralarm.ui.theme.NavyDark
-import com.example.prayeralarm.ui.theme.NavySurface
-import com.example.prayeralarm.ui.theme.TextPrimary
+import com.example.prayeralarm.ui.theme.OnGold
 import com.example.prayeralarm.ui.theme.TextSecondary
 
 @Composable
@@ -101,38 +111,14 @@ fun MainScreen() {
     )
 
     Scaffold(
+        containerColor = NavyDark,
         bottomBar = {
-            NavigationBar(
-                containerColor = NavySurface,
-                contentColor = TextPrimary,
-                tonalElevation = 8.dp
-            ) {
-                screens.forEach { screen ->
-                    val isSelected = currentRoute == screen.route
-                    NavigationBarItem(
-                        selected = isSelected,
-                        onClick = {
-                            navigateToTopLevel(screen.route)
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = screen.icon,
-                                contentDescription = screen.title
-                            )
-                        },
-                        label = {
-                            Text(text = screen.title)
-                        },
-                        colors = NavigationBarItemDefaults.colors(
-                            selectedIconColor = NavyDark,
-                            selectedTextColor = GoldPrimary,
-                            indicatorColor = GoldPrimary,
-                            unselectedIconColor = TextSecondary,
-                            unselectedTextColor = TextSecondary
-                        )
-                    )
-                }
-            }
+            FloatingBottomBar(
+                screens = screens,
+                // Locations is opened from Settings, so keep the Settings tab lit there.
+                selectedRoute = if (currentRoute == Screen.Locations.route) Screen.Settings.route else currentRoute,
+                onSelect = { navigateToTopLevel(it.route) }
+            )
         }
     ) { innerPadding ->
         NavHost(
@@ -193,6 +179,69 @@ fun MainScreen() {
                 )
             }
         }
+    }
+}
+
+/** Rounded bar that floats above the content; the active tab is a gold pill. */
+@Composable
+private fun FloatingBottomBar(
+    screens: List<Screen>,
+    selectedRoute: String?,
+    onSelect: (Screen) -> Unit
+) {
+    val shape = RoundedCornerShape(28.dp)
+    Row(
+        modifier = Modifier
+            .navigationBarsPadding()
+            .padding(horizontal = 20.dp, vertical = 12.dp)
+            .fillMaxWidth()
+            .height(72.dp)
+            .clip(shape)
+            .background(NavyBar)
+            .border(1.dp, NavyBorder, shape)
+            .padding(6.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        screens.forEach { screen ->
+            BarItem(
+                screen = screen,
+                selected = screen.route == selectedRoute,
+                onClick = { onSelect(screen) }
+            )
+        }
+    }
+}
+
+@Composable
+private fun RowScope.BarItem(
+    screen: Screen,
+    selected: Boolean,
+    onClick: () -> Unit
+) {
+    val contentColor = if (selected) OnGold else TextSecondary
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .height(60.dp)
+            .clip(RoundedCornerShape(22.dp))
+            .background(if (selected) GoldPrimary else Color.Transparent)
+            .selectable(selected = selected, role = Role.Tab, onClick = onClick),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Icon(
+            imageVector = screen.icon,
+            contentDescription = null,
+            tint = contentColor,
+            modifier = Modifier.size(24.dp)
+        )
+        Text(
+            text = screen.title,
+            color = contentColor,
+            fontSize = 12.sp,
+            fontWeight = if (selected) FontWeight.ExtraBold else FontWeight.Bold,
+            maxLines = 1
+        )
     }
 }
 

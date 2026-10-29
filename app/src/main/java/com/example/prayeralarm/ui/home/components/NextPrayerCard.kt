@@ -1,26 +1,28 @@
 package com.example.prayeralarm.ui.home.components
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -29,12 +31,16 @@ import com.example.prayeralarm.ui.theme.GoldContainer
 import com.example.prayeralarm.ui.theme.GoldPrimary
 import com.example.prayeralarm.ui.theme.NavyBorder
 import com.example.prayeralarm.ui.theme.NavyCard
-import com.example.prayeralarm.ui.theme.NavyDark
 import com.example.prayeralarm.ui.theme.NavySurface
 import com.example.prayeralarm.ui.theme.OnGoldContainer
 import com.example.prayeralarm.ui.theme.TextPrimary
 import com.example.prayeralarm.ui.theme.TextSecondary
 import java.time.format.DateTimeFormatter
+import kotlin.math.cos
+import kotlin.math.sin
+
+private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
+private val TickColor = androidx.compose.ui.graphics.Color(0xFF3A4872)
 
 @Composable
 fun NextPrayerCard(
@@ -43,130 +49,121 @@ fun NextPrayerCard(
     remainingMinutes: Long,
     remainingSeconds: Long,
     isSampleData: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    progress: Float = 0f
 ) {
-    val gradientBrush = Brush.verticalGradient(colors = listOf(NavyCard, NavySurface))
+    val shape = RoundedCornerShape(28.dp)
+    val countdown = String.format(
+        "%02d:%02d:%02d",
+        remainingHours.coerceAtLeast(0),
+        remainingMinutes.coerceAtLeast(0),
+        remainingSeconds.coerceAtLeast(0)
+    )
 
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .border(1.dp, GoldPrimary.copy(alpha = 0.35f), RoundedCornerShape(18.dp)),
-        shape = RoundedCornerShape(18.dp),
-        colors = CardDefaults.cardColors(containerColor = NavySurface)
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(gradientBrush)
-                .padding(horizontal = 16.dp, vertical = 14.dp)
-        ) {
-            Column {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        if (isSampleData) {
-                            Box(
-                                modifier = Modifier
-                                    .clip(RoundedCornerShape(6.dp))
-                                    .background(GoldContainer)
-                                    .padding(horizontal = 6.dp, vertical = 2.dp)
-                            ) {
-                                Text(
-                                    text = "Sample Mock",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = OnGoldContainer,
-                                    fontSize = 10.sp
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(2.dp))
-                        }
-                        Row(verticalAlignment = Alignment.Bottom) {
-                            Text(
-                                text = nextPrayer?.type?.displayName ?: "Upcoming",
-                                style = MaterialTheme.typography.headlineMedium,
-                                color = TextPrimary,
-                                fontWeight = FontWeight.Bold
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = nextPrayer?.type?.arabicName ?: "",
-                                style = MaterialTheme.typography.titleMedium,
-                                color = GoldPrimary.copy(alpha = 0.85f),
-                                fontWeight = FontWeight.Normal
-                            )
-                        }
-                    }
-
-                    if (nextPrayer != null) {
-                        val formattedTime = nextPrayer.time.format(DateTimeFormatter.ofPattern("HH:mm"))
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(NavyDark)
-                                .border(1.dp, NavyBorder, RoundedCornerShape(10.dp))
-                                .padding(horizontal = 10.dp, vertical = 6.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = formattedTime,
-                                style = MaterialTheme.typography.titleMedium,
-                                color = TextPrimary,
-                                fontWeight = FontWeight.Bold
-                            )
-                        }
-                    }
-                }
-
-                Spacer(modifier = Modifier.height(10.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    CountdownTimeUnit(value = remainingHours, label = "HOURS")
-                    Text(":", style = MaterialTheme.typography.titleLarge, color = GoldPrimary, fontWeight = FontWeight.Bold)
-                    CountdownTimeUnit(value = remainingMinutes, label = "MINS")
-                    Text(":", style = MaterialTheme.typography.titleLarge, color = GoldPrimary, fontWeight = FontWeight.Bold)
-                    CountdownTimeUnit(value = remainingSeconds, label = "SECS")
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun CountdownTimeUnit(
-    value: Long,
-    label: String,
-    modifier: Modifier = Modifier
-) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(10.dp))
-            .background(NavyDark.copy(alpha = 0.8f))
-            .border(1.dp, NavyBorder.copy(alpha = 0.7f), RoundedCornerShape(10.dp))
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .fillMaxWidth()
+            .clip(shape)
+            .background(NavySurface)
+            .border(1.dp, NavyBorder, shape)
+            .padding(20.dp),
         contentAlignment = Alignment.Center
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        if (isSampleData) {
             Text(
-                text = String.format("%02d", value.coerceAtLeast(0)),
-                style = MaterialTheme.typography.titleLarge,
-                color = GoldPrimary,
-                fontWeight = FontWeight.Bold
-            )
-            Text(
-                text = label,
+                text = "SAMPLE",
                 style = MaterialTheme.typography.labelSmall,
-                color = TextSecondary,
-                fontSize = 9.sp,
-                letterSpacing = 0.8.sp
+                color = OnGoldContainer,
+                fontSize = 10.sp,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .clip(RoundedCornerShape(6.dp))
+                    .background(GoldContainer)
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
             )
+        }
+
+        Box(modifier = Modifier.size(232.dp), contentAlignment = Alignment.Center) {
+            Canvas(modifier = Modifier.fillMaxSize()) {
+                val c = center
+                val tickRadius = 110.dp.toPx()
+                for (i in 0 until 60) {
+                    val angle = Math.toRadians(i * 6.0)
+                    drawCircle(
+                        color = TickColor,
+                        radius = 1.6.dp.toPx(),
+                        center = Offset(
+                            c.x + (cos(angle) * tickRadius).toFloat(),
+                            c.y + (sin(angle) * tickRadius).toFloat()
+                        )
+                    )
+                }
+                val strokeWidth = 9.dp.toPx()
+                val inset = 22.dp.toPx()
+                val arcSize = Size(size.width - inset * 2, size.height - inset * 2)
+                drawArc(
+                    color = NavyCard,
+                    startAngle = 0f,
+                    sweepAngle = 360f,
+                    useCenter = false,
+                    topLeft = Offset(inset, inset),
+                    size = arcSize,
+                    style = Stroke(width = strokeWidth)
+                )
+                drawArc(
+                    color = GoldPrimary,
+                    startAngle = -90f,
+                    sweepAngle = 360f * progress.coerceIn(0f, 1f),
+                    useCenter = false,
+                    topLeft = Offset(inset, inset),
+                    size = arcSize,
+                    style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+                )
+            }
+
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = "NEXT PRAYER",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = TextSecondary,
+                    fontSize = 11.sp,
+                    letterSpacing = 1.8.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    Text(
+                        text = nextPrayer?.type?.displayName ?: "Upcoming",
+                        style = MaterialTheme.typography.headlineMedium.copy(fontSize = 32.sp),
+                        fontFamily = FontFamily.Serif,
+                        color = TextPrimary,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                    Text(
+                        text = nextPrayer?.type?.arabicName ?: "",
+                        style = MaterialTheme.typography.titleLarge.copy(fontSize = 22.sp),
+                        color = GoldPrimary,
+                        modifier = Modifier.padding(bottom = 3.dp)
+                    )
+                }
+                Text(
+                    text = countdown,
+                    style = MaterialTheme.typography.headlineMedium.copy(
+                        fontSize = 34.sp,
+                        fontFeatureSettings = "tnum"
+                    ),
+                    color = TextPrimary,
+                    fontWeight = FontWeight.ExtraBold
+                )
+                Text(
+                    text = nextPrayer?.let { "until adhan at ${it.time.format(timeFormatter)}" } ?: "",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = TextSecondary,
+                    fontWeight = FontWeight.SemiBold
+                )
+            }
         }
     }
 }

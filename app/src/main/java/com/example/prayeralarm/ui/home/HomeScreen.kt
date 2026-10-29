@@ -74,7 +74,7 @@ fun HomeScreen(
 fun HomeScreenPreview() {
     PrayerAlarmTheme(darkTheme = true) {
         HomeScreen(
-            uiState = HomeViewModel.createInitialSampleState(),
+            uiState = HomeViewModel.createPreviewState(),
             onLocationClick = {},
             onSettingsClick = {},
             onToggleNotification = {}
@@ -85,7 +85,7 @@ fun HomeScreenPreview() {
 @Preview(name = "Next Prayer Card Only", showBackground = true)
 @Composable
 fun NextPrayerCardPreview() {
-    val sampleState = HomeViewModel.createInitialSampleState()
+    val sampleState = HomeViewModel.createPreviewState()
     PrayerAlarmTheme(darkTheme = true) {
         NextPrayerCard(
             nextPrayer = sampleState.nextPrayer,

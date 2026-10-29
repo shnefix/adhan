@@ -1,10 +1,5 @@
 package com.example.prayeralarm.ui.alarms
 
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -28,11 +23,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.NotificationsOff
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -40,15 +32,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
-import com.example.prayeralarm.alarm.CountdownNotificationService
 import com.example.prayeralarm.domain.alarm.AlarmPlanGenerator
 import com.example.prayeralarm.domain.alarm.AlarmPlanResult
 import com.example.prayeralarm.domain.alarm.AlarmTimingMode
@@ -57,11 +46,8 @@ import com.example.prayeralarm.ui.components.EmptyState
 import com.example.prayeralarm.ui.components.ErrorBanner
 import com.example.prayeralarm.ui.home.HomeUiState
 import com.example.prayeralarm.ui.theme.GoldPrimary
-import com.example.prayeralarm.ui.theme.GreenActive
-import com.example.prayeralarm.ui.theme.GreenActiveContainer
 import com.example.prayeralarm.ui.theme.NavyBorder
 import com.example.prayeralarm.ui.theme.NavyCard
-import com.example.prayeralarm.ui.theme.NavyDark
 import com.example.prayeralarm.ui.theme.NavyInset
 import com.example.prayeralarm.ui.theme.NavySurface
 import com.example.prayeralarm.ui.theme.OnGold
@@ -79,6 +65,10 @@ private const val MAX_INTERVAL = 15L
 
 private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm")
 
+/**
+ * Fajr alarm configuration + preview.
+ * The on/off switch and plan status now live in Settings (see SettingsScreen).
+ */
 @Composable
 fun AlarmPlanScreen(
     homeUiState: HomeUiState,
@@ -87,37 +77,15 @@ fun AlarmPlanScreen(
 ) {
     val config by viewModel.config.collectAsState()
     val errorMessage by viewModel.errorMessage.collectAsState()
-    val context = LocalContext.current
-
-    LaunchedEffect(config.enabled) {
-        if (config.enabled) {
-            CountdownNotificationService.start(context)
-        } else {
-            CountdownNotificationService.stop(context)
-        }
-    }
-
-    val notificationPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) {
-        if (config.enabled) {
-            CountdownNotificationService.start(context)
-        }
-    }
 
     val fajr = homeUiState.prayerTimetable.firstOrNull { it.type.name == "FAJR" }
     val fajrAt = fajr?.let { LocalDateTime.of(homeUiState.currentDate, it.time) }
     val result = fajrAt?.let { AlarmPlanGenerator.generate(it, config) }
 
-    val summary = when {
-        !config.enabled -> "Turned off. Switch on to schedule ${config.alarmCount} alarms."
-        result is AlarmPlanResult.Success && result.alarms.isNotEmpty() -> {
-            val first = result.alarms.first().scheduledAt.format(timeFormatter)
-            val last = result.alarms.last().scheduledAt.format(timeFormatter)
-            if (result.alarms.size == 1) "1 alarm at $first"
-            else "${result.alarms.size} alarms, $first to $last"
-        }
-        else -> "Alarms will fire at the scheduled times."
+    val subtitle = when {
+        fajr == null -> "Waiting for prayer times"
+        !config.enabled -> "Fajr is at ${fajr.time.format(timeFormatter)}. Alarms are off, turn them on in Settings."
+        else -> "Fajr is at ${fajr.time.format(timeFormatter)} today"
     }
 
     Column(
@@ -127,7 +95,6 @@ fun AlarmPlanScreen(
             .padding(start = 20.dp, end = 20.dp, top = 16.dp, bottom = 24.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // ---- Header ----
         Column(
             modifier = Modifier.padding(horizontal = 4.dp),
             verticalArrangement = Arrangement.spacedBy(4.dp)
@@ -140,31 +107,12 @@ fun AlarmPlanScreen(
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = fajr?.let { "Fajr is at ${it.time.format(timeFormatter)} today" }
-                    ?: "Waiting for prayer times",
+                text = subtitle,
                 style = MaterialTheme.typography.bodyMedium.copy(fontSize = 14.sp),
                 color = TextSecondary,
                 fontWeight = FontWeight.Medium
             )
         }
-
-        // ---- Plan card ----
-        PlanCard(
-            enabled = config.enabled,
-            summary = summary,
-            onEnabledChange = { enabled ->
-                viewModel.setEnabled(enabled)
-                if (enabled &&
-                    Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
-                    ContextCompat.checkSelfPermission(
-                        context,
-                        Manifest.permission.POST_NOTIFICATIONS
-                    ) != PackageManager.PERMISSION_GRANTED
-                ) {
-                    notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-                }
-            }
-        )
 
         // ---- Configuration card ----
         CardSurface {
@@ -205,19 +153,14 @@ fun AlarmPlanScreen(
         errorMessage?.let { ErrorBanner(message = it) }
 
         // ---- Preview ----
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Bottom
-        ) {
-            Text(
-                text = "Preview",
-                style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
-                fontFamily = FontFamily.Serif,
-                color = TextPrimary,
-                fontWeight = FontWeight.SemiBold
-            )
-        }
+        Text(
+            text = "Preview",
+            style = MaterialTheme.typography.titleLarge.copy(fontSize = 20.sp),
+            fontFamily = FontFamily.Serif,
+            color = TextPrimary,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
 
         when (result) {
             is AlarmPlanResult.Success -> {
@@ -225,7 +168,7 @@ fun AlarmPlanScreen(
                     EmptyState(
                         icon = Icons.Default.NotificationsOff,
                         title = "Alarm plan is disabled",
-                        description = "Turn on the alarm plan to schedule Fajr alarms."
+                        description = "Turn on Fajr alarms in Settings to schedule them."
                     )
                 } else {
                     AlarmPreviewGrid(alarms = result.alarms, fajrAt = fajrAt)
@@ -266,89 +209,6 @@ private fun RowDivider() {
             .height(1.dp)
             .background(NavyBorder.copy(alpha = 0.8f))
     )
-}
-
-@Composable
-private fun PlanCard(
-    enabled: Boolean,
-    summary: String,
-    onEnabledChange: (Boolean) -> Unit
-) {
-    val shape = RoundedCornerShape(24.dp)
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(shape)
-            .background(NavySurface)
-            .border(1.dp, NavyBorder, shape)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column(
-                modifier = Modifier.weight(1f).padding(end = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(2.dp)
-            ) {
-                Text(
-                    text = "Enabled",
-                    style = MaterialTheme.typography.titleMedium.copy(fontSize = 17.sp),
-                    color = TextPrimary,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = summary,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = TextSecondary
-                )
-            }
-            Switch(
-                checked = enabled,
-                onCheckedChange = onEnabledChange,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = NavyDark,
-                    checkedTrackColor = GoldPrimary,
-                    uncheckedThumbColor = TextSecondary,
-                    uncheckedTrackColor = NavyCard,
-                    uncheckedBorderColor = NavyBorder
-                )
-            )
-        }
-        Box(
-            Modifier
-                .padding(horizontal = 20.dp)
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(NavyBorder)
-        )
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Text(
-                text = "Plan status",
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 15.sp),
-                color = TextPrimary,
-                fontWeight = FontWeight.SemiBold
-            )
-            Text(
-                text = if (enabled) "Active" else "Disabled",
-                style = MaterialTheme.typography.labelLarge,
-                color = if (enabled) GreenActive else TextSecondary,
-                fontWeight = FontWeight.ExtraBold,
-                modifier = Modifier
-                    .clip(RoundedCornerShape(99.dp))
-                    .background(if (enabled) GreenActiveContainer else NavyCard)
-                    .padding(horizontal = 12.dp, vertical = 3.dp)
-            )
-        }
-    }
 }
 
 @Composable

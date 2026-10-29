@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,6 +43,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.prayeralarm.PrayerAlarmApplication
+import com.example.prayeralarm.alarm.CountdownNotificationService
 import com.example.prayeralarm.alarm.PrayerAlarmSchedulingViewModel
 import com.example.prayeralarm.ui.alarms.AlarmPlanScreen
 import com.example.prayeralarm.ui.alarms.AlarmPlanViewModel
@@ -87,6 +89,17 @@ fun MainScreen() {
             scheduler = context.prayerAlarmScheduler
         )
     )
+
+    // The on/off switch now lives in Settings, so the persistent countdown notification
+    // is started/stopped here, where it is always active.
+    val alarmConfig by alarmPlanViewModel.config.collectAsState()
+    LaunchedEffect(alarmConfig.enabled) {
+        if (alarmConfig.enabled) {
+            CountdownNotificationService.start(context)
+        } else {
+            CountdownNotificationService.stop(context)
+        }
+    }
 
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -175,6 +188,7 @@ fun MainScreen() {
             composable(Screen.Settings.route) {
                 SettingsScreen(
                     viewModel = settingsViewModel,
+                    alarmPlanViewModel = alarmPlanViewModel,
                     onLocationChange = { navigateToTopLevel(Screen.Locations.route) }
                 )
             }

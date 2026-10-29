@@ -129,6 +129,11 @@ reschedule after reboot; those require the settings and persistence layers.
 
 The Alarms destination now exposes a Compose preview backed by the live Fajr
 time from `HomeUiState`. It validates count and interval through the same pure
-generator used by scheduling. The controls are intentionally not presented as
-saved settings yet: the preview state is local to the screen until DataStore
-preferences and schedule reconciliation are added.
+generator used by scheduling.
+
+Alarm settings are now persisted through `UserPreferencesManager`. Defaults are
+five alarms, ten-minute intervals, combined pre-Fajr mode, and disabled plan.
+`AlarmPlanViewModel` exposes the settings as a `StateFlow`, reports DataStore
+errors to the UI, and rejects non-positive count or interval values before
+writing. The current checkpoint persists settings but does not yet reconcile
+them with `AlarmManager`.

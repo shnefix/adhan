@@ -5,8 +5,12 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.prayeralarm.domain.alarm.AlarmPlanConfig
+import com.example.prayeralarm.domain.alarm.AlarmTimingMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
@@ -21,6 +25,10 @@ class UserPreferencesManager(private val context: Context) {
 
     companion object {
         val KEY_SELECTED_LOCATION_ID = longPreferencesKey("selected_location_id")
+        private val KEY_ALARM_ENABLED = booleanPreferencesKey("alarm_enabled")
+        private val KEY_ALARM_COUNT = longPreferencesKey("alarm_count")
+        private val KEY_ALARM_INTERVAL_MINUTES = longPreferencesKey("alarm_interval_minutes")
+        private val KEY_ALARM_TIMING_MODE = stringPreferencesKey("alarm_timing_mode")
     }
 
     /**
@@ -55,5 +63,33 @@ class UserPreferencesManager(private val context: Context) {
             preferences.remove(KEY_SELECTED_LOCATION_ID)
         }
     }
-}
 
+    val alarmPlanConfig: Flow<AlarmPlanConfig> = context.dataStore.data
+            .catch { exception ->
+                if (exception is IOException) emit(emptyPreferences()) else throw exception
+            }
+            .map { preferences ->
+                val count = preferences[KEY_ALARM_COUNT]?.toInt()
+                val interval = preferences[KEY_ALARM_INTERVAL_MINUTES]
+                val mode = preferences[KEY_ALARM_TIMING_MODE]?.let {
+                    runCatching { AlarmTimingMode.valueOf(it) }.getOrNull()
+                }
+                AlarmPlanConfig(
+                    alarmCount = count ?: AlarmPlanConfig.DEFAULT.alarmCount,
+                    intervalMinutes = interval ?: AlarmPlanConfig.DEFAULT.intervalMinutes,
+                    timingMode = mode ?: AlarmPlanConfig.DEFAULT.timingMode,
+                    enabled = preferences[KEY_ALARM_ENABLED] ?: AlarmPlanConfig.DEFAULT.enabled
+                )
+            }
+
+    suspend fun setAlarmPlanConfig(config: AlarmPlanConfig) {
+        require(config.alarmCount > 0) { "Alarm count must be positive." }
+        require(config.intervalMinutes > 0) { "Alarm interval must be positive." }
+        context.dataStore.edit { preferences ->
+            preferences[KEY_ALARM_ENABLED] = config.enabled
+            preferences[KEY_ALARM_COUNT] = config.alarmCount.toLong()
+            preferences[KEY_ALARM_INTERVAL_MINUTES] = config.intervalMinutes
+            preferences[KEY_ALARM_TIMING_MODE] = config.timingMode.name
+        }
+    }
+}

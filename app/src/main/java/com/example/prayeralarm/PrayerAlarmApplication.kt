@@ -6,6 +6,8 @@ import com.example.prayeralarm.data.preferences.UserPreferencesManager
 import com.example.prayeralarm.data.repository.LocationRepository
 import com.example.prayeralarm.data.repository.LocationRepositoryImpl
 import com.example.prayeralarm.alarm.NotificationChannels
+import com.example.prayeralarm.ui.alarms.AlarmPlanPreferences
+import com.example.prayeralarm.ui.alarms.DataStoreAlarmPlanPreferences
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -34,6 +36,10 @@ class PrayerAlarmApplication : Application() {
             locationDao = database.locationDao(),
             preferencesManager = preferencesManager
         )
+    }
+
+    val alarmPlanPreferences: AlarmPlanPreferences by lazy {
+        DataStoreAlarmPlanPreferences(preferencesManager)
     }
 
     override fun onCreate() {

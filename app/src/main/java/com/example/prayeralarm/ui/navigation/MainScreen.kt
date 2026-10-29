@@ -36,6 +36,7 @@ import com.example.prayeralarm.PrayerAlarmApplication
 import com.example.prayeralarm.ui.home.HomeScreen
 import com.example.prayeralarm.ui.home.HomeViewModel
 import com.example.prayeralarm.ui.alarms.AlarmPlanScreen
+import com.example.prayeralarm.ui.alarms.AlarmPlanViewModel
 import com.example.prayeralarm.ui.locations.LocationsScreen
 import com.example.prayeralarm.ui.locations.LocationsViewModel
 import com.example.prayeralarm.ui.theme.GoldPrimary
@@ -55,6 +56,9 @@ fun MainScreen() {
     )
     val locationsViewModel: LocationsViewModel = viewModel(
         factory = LocationsViewModel.Factory(locationRepository)
+    )
+    val alarmPlanViewModel: AlarmPlanViewModel = viewModel(
+        factory = AlarmPlanViewModel.Factory(context.alarmPlanPreferences)
     )
 
     val navController = rememberNavController()
@@ -165,7 +169,7 @@ fun MainScreen() {
 
             composable(Screen.Alarms.route) {
                 val uiState by homeViewModel.uiState.collectAsState()
-                AlarmPlanScreen(homeUiState = uiState)
+                AlarmPlanScreen(homeUiState = uiState, viewModel = alarmPlanViewModel)
             }
 
             composable(Screen.Settings.route) {

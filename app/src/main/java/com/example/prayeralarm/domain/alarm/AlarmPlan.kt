@@ -14,7 +14,16 @@ data class AlarmPlanConfig(
     val intervalMinutes: Long,
     val timingMode: AlarmTimingMode,
     val enabled: Boolean = true
-)
+) {
+    companion object {
+        val DEFAULT = AlarmPlanConfig(
+            alarmCount = 5,
+            intervalMinutes = 10L,
+            timingMode = AlarmTimingMode.BOTH,
+            enabled = false
+        )
+    }
+}
 
 data class PlannedAlarm(
     val sequence: Int,

@@ -18,14 +18,10 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.prayeralarm.domain.alarm.AlarmPlanConfig
 import com.example.prayeralarm.domain.alarm.AlarmPlanGenerator
 import com.example.prayeralarm.domain.alarm.AlarmPlanResult
 import com.example.prayeralarm.domain.alarm.AlarmTimingMode
@@ -36,21 +32,14 @@ import java.time.format.DateTimeFormatter
 @Composable
 fun AlarmPlanScreen(
     homeUiState: HomeUiState,
+    viewModel: AlarmPlanViewModel,
     modifier: Modifier = Modifier
 ) {
-    var enabled by rememberSaveable { mutableStateOf(false) }
-    var alarmCount by rememberSaveable { mutableIntStateOf(5) }
-    var intervalMinutes by rememberSaveable { mutableLongStateOf(10L) }
-    var timingMode by rememberSaveable { mutableStateOf(AlarmTimingMode.BOTH.name) }
+    val config by viewModel.config.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
 
     val fajr = homeUiState.prayerTimetable.firstOrNull { it.type.name == "FAJR" }
     val fajrAt = fajr?.let { LocalDateTime.of(homeUiState.currentDate, it.time) }
-    val config = AlarmPlanConfig(
-        alarmCount = alarmCount,
-        intervalMinutes = intervalMinutes,
-        timingMode = AlarmTimingMode.valueOf(timingMode),
-        enabled = enabled
-    )
     val result = fajrAt?.let { AlarmPlanGenerator.generate(it, config) }
 
     Column(
@@ -71,20 +60,20 @@ fun AlarmPlanScreen(
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
             Text("Enable alarm plan")
-            Switch(checked = enabled, onCheckedChange = { enabled = it })
+            Switch(checked = config.enabled, onCheckedChange = viewModel::setEnabled)
         }
 
         OutlinedTextField(
-            value = alarmCount.toString(),
-            onValueChange = { it.toIntOrNull()?.let { value -> alarmCount = value } },
+            value = config.alarmCount.toString(),
+            onValueChange = { it.toIntOrNull()?.let(viewModel::setAlarmCount) },
             label = { Text("Alarm count") },
             supportingText = { Text("Total alarms, including Fajr when reached") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
         )
         OutlinedTextField(
-            value = intervalMinutes.toString(),
-            onValueChange = { it.toLongOrNull()?.let { value -> intervalMinutes = value } },
+            value = config.intervalMinutes.toString(),
+            onValueChange = { it.toLongOrNull()?.let(viewModel::setIntervalMinutes) },
             label = { Text("Interval in minutes") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth()
@@ -92,8 +81,12 @@ fun AlarmPlanScreen(
 
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             AlarmTimingMode.values().forEach { mode ->
-                Button(onClick = { timingMode = mode.name }) {
+                Button(onClick = { viewModel.setTimingMode(mode) }) {
                     Text(mode.name.replace('_', ' '))
+                }
+
+                if (errorMessage != null) {
+                    Text(errorMessage!!, color = MaterialTheme.colorScheme.error)
                 }
             }
         }
@@ -129,7 +122,7 @@ fun AlarmPlanScreen(
         }
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "Saving and system scheduling will be enabled after alarm preferences are persisted.",
+            text = "Alarm preferences are persisted locally. System scheduling is subject to Android permissions.",
             style = MaterialTheme.typography.bodySmall
         )
     }

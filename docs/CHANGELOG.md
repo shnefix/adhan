@@ -88,3 +88,5 @@ All notable changes, fixes, and milestones across the 10 stages of the Prayer Al
   reconciliation, and reboot rescheduling remain future work.
 - Replaced the Alarms placeholder with a live Fajr alarm-plan preview using
   Compose state and the calculated Home timetable.
+- Persisted alarm-plan enabled state, count, interval, and timing mode through
+  DataStore and moved authoritative UI state into `AlarmPlanViewModel`.

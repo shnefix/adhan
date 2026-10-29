@@ -171,3 +171,10 @@ exact duplicate is submitted, the existing row is reused. Deleting the active
 location selects the first remaining saved location, or clears the DataStore
 selection when the database becomes empty. This keeps the Home screen's active
 location flow valid after destructive actions.
+
+Alarm-plan preferences are stored in the same DataStore file using stable keys
+for enabled state, count, interval, and timing mode. The alarm ViewModel owns
+the authoritative `StateFlow<AlarmPlanConfig>` and persists only positive
+count/interval values. The Compose screen renders that flow and sends actions
+back to the ViewModel rather than keeping the durable settings in `remember`
+state.

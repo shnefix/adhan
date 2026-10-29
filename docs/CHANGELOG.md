@@ -84,8 +84,7 @@ All notable changes, fixes, and milestones across the 10 stages of the Prayer Al
 - Added a deterministic, Android-independent Fajr alarm-plan generator with
   before, at/after, combined, disabled, validation, and midnight coverage.
 - Added a permission-aware exact-alarm scheduler, notification channel setup,
-  and a manifest-registered prayer alarm receiver. Settings persistence,
-  reconciliation, and reboot rescheduling remain future work.
+  and a manifest-registered prayer alarm receiver.
 - Replaced the Alarms placeholder with a live Fajr alarm-plan preview using
   Compose state and the calculated Home timetable.
 - Persisted alarm-plan enabled state, count, interval, and timing mode through

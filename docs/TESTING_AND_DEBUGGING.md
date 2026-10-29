@@ -72,7 +72,7 @@ Follow these steps on your connected Android phone:
    - "Mahdia" has a gold **ACTIVE** badge with a checked radio icon.
 4. **Select a Location**:
    - Tap **"Ariana"**.
-   - The ACTIVE badge and checked radio instantly move to "Sfax".
+   - The ACTIVE badge and checked radio instantly move to "Ariana".
    - Tap the **Home** tab in the bottom bar.
    - Verify the Home header now displays **"Ariana"**.
 5. **Add a Location**:
@@ -98,7 +98,26 @@ Follow these steps on your connected Android phone:
    - Tap the trash icon again, then tap "Delete".
    - Verify "Monastir Port" is removed from the list.
 8. **Verify Persistence Across App Restarts**:
-   - Select "Sfax" as active.
+   - Select "Ariana" as active.
    - Force-close the app from the Android App Switcher (swipe it away).
    - Re-launch Prayer Alarm.
-   - Verify "Sfax" remains selected as the active location on both the Home Screen and the Locations Screen.
+   - Verify "Ariana" remains selected as the active location on both the Home Screen and the Locations Screen.
+
+## 6. Alarm and recovery checks
+
+1. Open **Alarms**, enable the plan, and verify the default five-alarm,
+   ten-minute preview is based on the displayed Fajr time.
+2. Change count, interval, and timing mode, close the app, and reopen it.
+   Verify the settings remain unchanged.
+3. Open **Settings** and verify exact-alarm and notification permission status.
+4. With permission available, enable the plan and verify the scheduler is
+   allowed to schedule future alarms. With permission denied, verify the
+   app reports the limitation rather than claiming success.
+5. After changing the active location or disabling the plan, verify obsolete
+   alarms are canceled where the device exposes them.
+6. Reboot the phone and verify the current/tomorrow bounded schedule is
+   reconstructed. Repeat after changing the system timezone or date.
+
+The repository currently has no Compose UI test suite and no connected-device
+results. These checks must be performed on a physical or emulated Android
+device before claiming end-to-end alarm delivery.

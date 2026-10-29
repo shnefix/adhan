@@ -67,3 +67,20 @@ Deterministic tests in `PrayerTimeCalculatorTest.kt`:
 - `computeNextPrayerAndCountdown_atPrayerBoundary_advancesToNextPrayer`: Verifies strict timestamp-boundary selection.
 
 The verified local command was `.\gradlew.bat testDebugUnitTest`; all 18 unit tests passed. The debug APK was also built successfully with `.\gradlew.bat assembleDebug`.
+
+---
+
+## 4. Navigation from Locations
+
+The app uses one `NavHost` with `Home`, `Locations`, `Alarms`, and `Settings` as
+top-level destinations. Bottom-navigation clicks and the Home header shortcuts
+now share the same `navigateToTopLevel` policy: the start destination is retained,
+the requested route is single-top, and saved destination state is restored.
+Therefore returning to Prayer Times from Locations does not create duplicate
+back-stack entries, while the shared `HomeViewModel` continues observing the
+active location selected by `LocationsViewModel`.
+
+Navigation should still be manually checked on a device: open Locations, select
+or edit a location, then tap Prayer Times and confirm the timetable and selected
+location are updated. Automated navigation tests are not currently configured in
+this project.

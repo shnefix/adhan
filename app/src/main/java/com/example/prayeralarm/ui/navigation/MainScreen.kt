@@ -60,6 +60,18 @@ fun MainScreen() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
+    fun navigateToTopLevel(route: String) {
+        if (currentRoute != route) {
+            navController.navigate(route) {
+                popUpTo(navController.graph.findStartDestination().id) {
+                    saveState = true
+                }
+                launchSingleTop = true
+                restoreState = true
+            }
+        }
+    }
+
     val screens = listOf(
         Screen.Home,
         Screen.Locations,
@@ -79,15 +91,7 @@ fun MainScreen() {
                     NavigationBarItem(
                         selected = isSelected,
                         onClick = {
-                            if (currentRoute != screen.route) {
-                                navController.navigate(screen.route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }
+                            navigateToTopLevel(screen.route)
                         },
                         icon = {
                             Icon(
@@ -119,8 +123,8 @@ fun MainScreen() {
                 val uiState by homeViewModel.uiState.collectAsState()
                 HomeScreen(
                     uiState = uiState,
-                    onLocationClick = { navController.navigate(Screen.Locations.route) },
-                    onSettingsClick = { navController.navigate(Screen.Settings.route) },
+                    onLocationClick = { navigateToTopLevel(Screen.Locations.route) },
+                    onSettingsClick = { navigateToTopLevel(Screen.Settings.route) },
                     onToggleNotification = { prayerType ->
                         homeViewModel.togglePrayerNotification(prayerType)
                     }

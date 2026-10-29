@@ -79,3 +79,5 @@ All notable changes, fixes, and milestones across the 10 stages of the Prayer Al
 - Preserved existing saved locations and the DataStore active-location selection
   during migration.
 - Fresh databases now select Mahdia and seed the three preferred locations.
+- Exact duplicate location inserts are now reused, and deleting the active
+  location selects a remaining location or clears the selection when empty.

@@ -165,3 +165,9 @@ change the user's active city.
 The migration uses `INSERT ... SELECT ... WHERE NOT EXISTS` because the original
 schema has no uniqueness constraint for location identity. Future schema changes
 should consider a deliberate identity constraint or a dedicated stable seed key.
+
+The repository also checks this identity before inserting a user location. If an
+exact duplicate is submitted, the existing row is reused. Deleting the active
+location selects the first remaining saved location, or clears the DataStore
+selection when the database becomes empty. This keeps the Home screen's active
+location flow valid after destructive actions.

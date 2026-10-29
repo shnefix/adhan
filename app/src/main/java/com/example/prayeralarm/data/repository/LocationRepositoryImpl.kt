@@ -7,6 +7,7 @@ import com.example.prayeralarm.data.preferences.UserPreferencesManager
 import com.example.prayeralarm.domain.model.SavedLocation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 /**
@@ -48,6 +49,19 @@ class LocationRepositoryImpl(
     }
 
     override suspend fun addLocation(location: SavedLocation): Long {
+        val existing = locationDao.findByIdentity(
+            name = location.name,
+            latitude = location.latitude,
+            longitude = location.longitude,
+            timeZoneId = location.timeZoneId
+        )
+        if (existing != null) {
+            if (location.isDefault) {
+                preferencesManager.setSelectedLocationId(existing.id)
+            }
+            return existing.id
+        }
+
         val entity = location.toEntity()
         val newId = locationDao.insertLocation(entity)
         // If this is set as default or is the first inserted location, set as active
@@ -63,7 +77,16 @@ class LocationRepositoryImpl(
     }
 
     override suspend fun deleteLocation(location: SavedLocation): Boolean {
+        val selectedId = preferencesManager.selectedLocationId.first()
         val rows = locationDao.deleteLocationById(location.id)
+        if (rows > 0 && selectedId == location.id) {
+            val replacement = locationDao.getAllLocations().first().firstOrNull()
+            if (replacement == null) {
+                preferencesManager.clearSelectedLocationId()
+            } else {
+                preferencesManager.setSelectedLocationId(replacement.id)
+            }
+        }
         return rows > 0
     }
 
@@ -71,4 +94,3 @@ class LocationRepositoryImpl(
         preferencesManager.setSelectedLocationId(locationId)
     }
 }
-

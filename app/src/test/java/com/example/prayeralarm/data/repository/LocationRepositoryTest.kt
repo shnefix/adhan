@@ -92,6 +92,37 @@ class LocationRepositoryTest {
         val list = repository.getAllLocations().first()
         assertTrue(list.isEmpty())
     }
+
+    @Test
+    fun addLocation_doesNotInsertExactDuplicate() = runTest {
+        val location = SavedLocation(
+            name = "Mahdia",
+            latitude = 35.5047,
+            longitude = 11.0622,
+            timeZoneId = "Africa/Tunis"
+        )
+
+        val firstId = repository.addLocation(location)
+        val secondId = repository.addLocation(location)
+
+        assertEquals(firstId, secondId)
+        assertEquals(1, repository.getAllLocations().first().size)
+    }
+
+    @Test
+    fun deleteActiveLocation_selectsRemainingLocation() = runTest {
+        val firstId = repository.addLocation(
+            SavedLocation(name = "Mahdia", latitude = 35.5047, longitude = 11.0622, timeZoneId = "Africa/Tunis")
+        )
+        val secondId = repository.addLocation(
+            SavedLocation(name = "Ariana", latitude = 36.8625, longitude = 10.1956, timeZoneId = "Africa/Tunis")
+        )
+        repository.setActiveLocation(firstId)
+
+        repository.deleteLocation(repository.getLocationById(firstId)!!)
+
+        assertEquals(secondId, repository.getActiveLocation().first()?.id)
+    }
 }
 
 /**
@@ -111,6 +142,20 @@ class FakeLocationDao : LocationDao {
     override suspend fun getLocationById(id: Long): LocationEntity? = storage[id]
 
     override suspend fun getLocationCount(): Int = storage.size
+
+    override suspend fun findByIdentity(
+        name: String,
+        latitude: Double,
+        longitude: Double,
+        timeZoneId: String
+    ): LocationEntity? {
+        return storage.values.firstOrNull {
+            it.name == name &&
+                it.latitude == latitude &&
+                it.longitude == longitude &&
+                it.timeZoneId == timeZoneId
+        }
+    }
 
     override suspend fun insertLocation(location: LocationEntity): Long {
         val assignedId = if (location.id == 0L) idCounter++ else location.id
@@ -201,6 +246,18 @@ class FakeLocationRepository(private val dao: FakeLocationDao) : LocationReposit
     }
 
     override suspend fun addLocation(location: SavedLocation): Long {
+        val existing = dao.findByIdentity(
+            location.name,
+            location.latitude,
+            location.longitude,
+            location.timeZoneId
+        )
+        if (existing != null) {
+            if (location.isDefault) {
+                selectedLocationId.value = existing.id
+            }
+            return existing.id
+        }
         return dao.insertLocation(
             LocationEntity(
                 id = location.id,
@@ -225,7 +282,12 @@ class FakeLocationRepository(private val dao: FakeLocationDao) : LocationReposit
     }
 
     override suspend fun deleteLocation(location: SavedLocation): Boolean {
-        return dao.deleteLocationById(location.id) > 0
+        val wasSelected = selectedLocationId.value == location.id
+        val deleted = dao.deleteLocationById(location.id) > 0
+        if (deleted && wasSelected) {
+            selectedLocationId.value = dao.getAllLocations().first().firstOrNull()?.id
+        }
+        return deleted
     }
 
     override suspend fun setActiveLocation(locationId: Long) {

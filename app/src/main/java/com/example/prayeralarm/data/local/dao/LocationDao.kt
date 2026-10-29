@@ -37,6 +37,18 @@ interface LocationDao {
     @Query("SELECT COUNT(*) FROM saved_locations")
     suspend fun getLocationCount(): Int
 
+    @Query(
+        "SELECT * FROM saved_locations " +
+            "WHERE name = :name AND latitude = :latitude AND longitude = :longitude " +
+            "AND timezone_id = :timeZoneId LIMIT 1"
+    )
+    suspend fun findByIdentity(
+        name: String,
+        latitude: Double,
+        longitude: Double,
+        timeZoneId: String
+    ): LocationEntity?
+
     /**
      * Inserts a location. If a conflict occurs, replaces existing record.
      * @return Row ID of the inserted record.
@@ -68,4 +80,3 @@ interface LocationDao {
     @Query("DELETE FROM saved_locations WHERE id = :id")
     suspend fun deleteLocationById(id: Long): Int
 }
-

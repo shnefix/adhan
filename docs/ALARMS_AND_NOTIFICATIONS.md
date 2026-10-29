@@ -126,3 +126,9 @@ explain and remediate.
 Application and defensively by the receiver. This checkpoint does not yet
 persist alarm plans, expose alarm settings, reconcile obsolete schedules, or
 reschedule after reboot; those require the settings and persistence layers.
+
+The Alarms destination now exposes a Compose preview backed by the live Fajr
+time from `HomeUiState`. It validates count and interval through the same pure
+generator used by scheduling. The controls are intentionally not presented as
+saved settings yet: the preview state is local to the screen until DataStore
+preferences and schedule reconciliation are added.

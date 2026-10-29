@@ -35,6 +35,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.prayeralarm.PrayerAlarmApplication
 import com.example.prayeralarm.ui.home.HomeScreen
 import com.example.prayeralarm.ui.home.HomeViewModel
+import com.example.prayeralarm.ui.alarms.AlarmPlanScreen
 import com.example.prayeralarm.ui.locations.LocationsScreen
 import com.example.prayeralarm.ui.locations.LocationsViewModel
 import com.example.prayeralarm.ui.theme.GoldPrimary
@@ -163,10 +164,8 @@ fun MainScreen() {
             }
 
             composable(Screen.Alarms.route) {
-                PlaceholderScreen(
-                    title = "Fajr Alarm System",
-                    subtitle = "Multi-alarm generator & preview scheduled for Stage 7."
-                )
+                val uiState by homeViewModel.uiState.collectAsState()
+                AlarmPlanScreen(homeUiState = uiState)
             }
 
             composable(Screen.Settings.route) {

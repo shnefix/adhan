@@ -86,3 +86,5 @@ All notable changes, fixes, and milestones across the 10 stages of the Prayer Al
 - Added a permission-aware exact-alarm scheduler, notification channel setup,
   and a manifest-registered prayer alarm receiver. Settings persistence,
   reconciliation, and reboot rescheduling remain future work.
+- Replaced the Alarms placeholder with a live Fajr alarm-plan preview using
+  Compose state and the calculated Home timetable.

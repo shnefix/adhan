@@ -15,7 +15,7 @@ All notable changes, fixes, and milestones across the 10 stages of the Prayer Al
 - **Room SQLite Persistence**:
   - `data/local/entity/LocationEntity.kt`: Room `@Entity(tableName = "saved_locations")` mapping `id`, `name`, `latitude`, `longitude`, and `timeZoneId` with bidirectional mapper extensions to `SavedLocation`.
   - `data/local/dao/LocationDao.kt`: `@Dao` defining reactive `getAllLocations(): Flow<List<LocationEntity>>` queries and coroutine `suspend` CRUD methods.
-  - `data/local/PrayerAlarmDatabase.kt`: Room database builder pre-populating standard Tunisian benchmark cities (Tunis, Sfax, Sousse, Kairouan, Bizerte, Gabès, Tataouine) on first creation.
+  - `data/local/PrayerAlarmDatabase.kt`: Room database builder seeding Mahdia, Kelibia, and Ariana on a fresh database, with migration support for existing installations.
 - **DataStore Active Location Management**:
   - `data/preferences/UserPreferencesManager.kt`: Key-value persistence using Jetpack DataStore Preferences for decoupled, atomic `selected_location_id` tracking.
 - **Repository Abstraction**:

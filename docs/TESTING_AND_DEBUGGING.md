@@ -65,16 +65,16 @@ Output location:
 Follow these steps on your connected Android phone:
 
 1. **Launch App**: Open Prayer Alarm.
-2. **Observe Home Screen**: The header pill displays **"Tunis"** (seeded default location).
+2. **Observe Home Screen**: The header pill displays **"Mahdia"** (seeded default location).
 3. **Navigate to Locations**:
    - Tap the location pill on Home, or tap the **Locations** icon in the bottom navigation bar.
-   - Verify the pre-populated Tunisian benchmark cities appear (Tunis, Sfax, Sousse, Kairouan, Bizerte, Gabès, Tataouine).
-   - "Tunis" has a gold **ACTIVE** badge with a checked radio icon.
+   - Verify Mahdia, Kelibia, and Ariana appear.
+   - "Mahdia" has a gold **ACTIVE** badge with a checked radio icon.
 4. **Select a Location**:
-   - Tap **"Sfax"**.
+   - Tap **"Ariana"**.
    - The ACTIVE badge and checked radio instantly move to "Sfax".
    - Tap the **Home** tab in the bottom bar.
-   - Verify the Home header now displays **"Sfax"**.
+   - Verify the Home header now displays **"Ariana"**.
 5. **Add a Location**:
    - Return to the Locations tab.
    - Tap the gold **+** Floating Action Button.

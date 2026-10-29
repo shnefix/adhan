@@ -5,8 +5,8 @@
 **Prayer Alarm** is a native Android application engineered to help Muslims punctually observe the five daily prayers (Fajr, Dhuhr, Asr, Maghrib, Isha) with a special focus on customizable waking alarms for **Fajr**.
 
 The project is built on three core pillars:
-1. **Mathematical Autonomy**: All prayer times are computed on-device using astronomical algorithms and official Tunisian prayer-time parameters. No GPS permissions, third-party backend servers, or paid APIs are used.
-2. **Deterministic Wake-up System**: Fajr alarms are scheduled as exact hardware alarms using Android's `AlarmManager`, guaranteeing delivery across phone reboots, deep sleep (Doze mode), and app closures.
+1. **Mathematical Autonomy**: All prayer times are computed on-device using astronomical algorithms and documented configurable assumptions. No GPS permissions, third-party backend servers, or paid APIs are used.
+2. **Deterministic Wake-up System**: The project contains a permission-aware exact-alarm boundary using Android's `AlarmManager`; persistence, reconciliation, reboot recovery, and device-specific delivery behavior are not yet complete.
 3. **Transparent & Maintainable Architecture**: Built in Kotlin with Jetpack Compose, Material 3, and MVVM principles, serving as both an everyday utility and a reference educational codebase for modern Android engineering.
 
 ---
@@ -15,11 +15,11 @@ The project is built on three core pillars:
 
 ### A. Prayer Times Engine
 - Computes daily timings for Fajr, Dhuhr, Asr, Maghrib, and Isha.
-- Based on official Tunisian calculation standards (solar depression angles, shadow length ratios, rounding conventions).
+- Uses the current documented assumptions of 18° Fajr/Isha and standard-shadow Asr. Official Tunisian timetable equivalence has not yet been independently verified.
 - Calculates the upcoming next prayer and live countdown down to the second while active.
 
 ### B. Location Management
-- Supports at least three saved locations out of the box (e.g., Tunis, Sfax, Sousse) with full capability to add, edit, select, or delete custom locations.
+- Seeds Mahdia, Kelibia, and Ariana on a fresh database, with capability to add, edit, select, or delete custom locations.
 - Works entirely offline using coordinates (Latitude/Longitude) and standard IANA Timezone IDs (e.g., `Africa/Tunis`).
 - Zero GPS permission requests: protects user battery and privacy.
 
@@ -77,4 +77,3 @@ The project is built on three core pillars:
 | **Stage 8** | **Native AlarmManager Scheduler** (Exact alarms, PendingIntents, BootReceiver, Ringing UI) | Planned |
 | **Stage 9** | **System Clock App Integration** (Intent handling, fallback mechanism, honest reporting) | Planned |
 | **Stage 10** | **Reliability, Edge Cases & Polishing** (Timezone shifts, testing on real devices, release build) | Planned |
-

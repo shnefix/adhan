@@ -41,7 +41,7 @@ Previously, the countdown timer on the Home Screen displayed inaccurate remainin
 │    • Coordinates(latitude, longitude)                  │
 │    • DateComponents(year, month, day)                  │
 │    • CalculationParameters (18.0° Fajr, 18.0° Isha)   │
-│    • Madhab.SHAFI (Maliki m=1 Asr)                     │
+│    • Madhab.SHAFI (standard shadow-ratio assumption)   │
 └───────────────────────────┬────────────────────────────┘
                             │
               ┌─────────────┴─────────────┐
@@ -67,6 +67,11 @@ Deterministic tests in `PrayerTimeCalculatorTest.kt`:
 - `computeNextPrayerAndCountdown_atPrayerBoundary_advancesToNextPrayer`: Verifies strict timestamp-boundary selection.
 
 The verified local command was `.\gradlew.bat testDebugUnitTest`; all 18 unit tests passed. The debug APK was also built successfully with `.\gradlew.bat assembleDebug`.
+
+The 18° Fajr/Isha angles and standard-shadow Asr setting are implementation
+assumptions, not a claim of official Tunisian timetable equivalence. A future
+calibration stage should compare fixed dates and locations against a named
+official timetable source and record the observed tolerance.
 
 ---
 

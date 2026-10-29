@@ -93,3 +93,5 @@ All notable changes, fixes, and milestones across the 10 stages of the Prayer Al
 - Added a deterministic `PrayerAlarmCoordinator` that filters past alarms,
   cancels obsolete identities, and delegates desired schedules to a fakeable
   scheduler.
+- Connected active-location and persisted alarm-setting flows to scheduling for
+  today and tomorrow, with explicit scheduler failure results.

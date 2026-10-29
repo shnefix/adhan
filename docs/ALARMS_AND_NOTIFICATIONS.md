@@ -142,5 +142,8 @@ them with `AlarmManager`.
 integration step. It converts one or more timezone-aware Fajr timestamps into
 future `ScheduledPrayerAlarm` values, cancels obsolete request codes, and
 delegates scheduling to a fakeable `PrayerAlarmScheduler`. The current
-coordinator is covered independently; application lifecycle wiring and
-persisted scheduled-alarm identity storage remain separate work.
+coordinator is covered independently and is now observed by an application
+ViewModel. Changes to the active location or persisted alarm settings trigger
+reconciliation for today and tomorrow. The in-memory identity list is bounded
+to that rolling horizon; durable identity storage and broadcast-driven date or
+timezone refresh remain future recovery work.

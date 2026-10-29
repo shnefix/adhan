@@ -41,14 +41,20 @@ class AndroidAlarmScheduler(context: Context) : PrayerAlarmScheduler {
             return AlarmScheduleResult.ExactAlarmPermissionRequired
         }
 
-        alarms.forEach { alarm ->
-            alarmManager.setExactAndAllowWhileIdle(
-                AlarmManager.RTC_WAKEUP,
-                alarm.triggerAtMillis,
-                pendingIntent(alarm)
+        return try {
+            alarms.forEach { alarm ->
+                alarmManager.setExactAndAllowWhileIdle(
+                    AlarmManager.RTC_WAKEUP,
+                    alarm.triggerAtMillis,
+                    pendingIntent(alarm)
+                )
+            }
+            AlarmScheduleResult.Scheduled
+        } catch (securityException: SecurityException) {
+            AlarmScheduleResult.Invalid(
+                securityException.message ?: "Android rejected exact alarm scheduling."
             )
         }
-        return AlarmScheduleResult.Scheduled
     }
 
     override fun cancel(alarms: List<ScheduledPrayerAlarm>): AlarmScheduleResult {

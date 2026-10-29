@@ -37,6 +37,7 @@ import com.example.prayeralarm.ui.home.HomeScreen
 import com.example.prayeralarm.ui.home.HomeViewModel
 import com.example.prayeralarm.ui.alarms.AlarmPlanScreen
 import com.example.prayeralarm.ui.alarms.AlarmPlanViewModel
+import com.example.prayeralarm.alarm.PrayerAlarmSchedulingViewModel
 import com.example.prayeralarm.ui.locations.LocationsScreen
 import com.example.prayeralarm.ui.locations.LocationsViewModel
 import com.example.prayeralarm.ui.theme.GoldPrimary
@@ -59,6 +60,13 @@ fun MainScreen() {
     )
     val alarmPlanViewModel: AlarmPlanViewModel = viewModel(
         factory = AlarmPlanViewModel.Factory(context.alarmPlanPreferences)
+    )
+    viewModel<PrayerAlarmSchedulingViewModel>(
+        factory = PrayerAlarmSchedulingViewModel.Factory(
+            locationRepository = locationRepository,
+            alarmPreferences = context.alarmPlanPreferences,
+            scheduler = context.prayerAlarmScheduler
+        )
     )
 
     val navController = rememberNavController()

@@ -94,3 +94,19 @@ All notifications on modern Android must belong to a channel:
 2. What is the difference between `WorkManager` and `AlarmManager`?
 3. What happens if an app attempts to post a notification on Android 13 without requesting `POST_NOTIFICATIONS`?
 
+## Alarm plan generation
+
+The pure `AlarmPlanGenerator` creates a deterministic list of `LocalDateTime`
+values from a Fajr timestamp and an `AlarmPlanConfig`. The alarm count is the
+total number of alarms, including Fajr when the generated schedule reaches it.
+
+- `BEFORE_FAJR`: alarms are spaced backwards and the final alarm is at Fajr.
+- `AT_OR_AFTER_FAJR`: the first alarm is at Fajr and later alarms are after it.
+- `BOTH`: currently means the combined pre-Fajr sequence ending at Fajr. This
+  matches the product example of five alarms at 04:20, 04:30, 04:40, 04:50,
+  and 05:00 for a 05:00 Fajr. It does not silently create more than the
+  configured count.
+
+The generator is independent of Android scheduling APIs, so invalid counts,
+intervals, disabled plans, duplicate timestamps, and midnight date changes can
+be tested using fixed values before any `AlarmManager` integration is added.

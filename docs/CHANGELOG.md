@@ -81,3 +81,5 @@ All notable changes, fixes, and milestones across the 10 stages of the Prayer Al
 - Fresh databases now select Mahdia and seed the three preferred locations.
 - Exact duplicate location inserts are now reused, and deleting the active
   location selects a remaining location or clears the selection when empty.
+- Added a deterministic, Android-independent Fajr alarm-plan generator with
+  before, at/after, combined, disabled, validation, and midnight coverage.

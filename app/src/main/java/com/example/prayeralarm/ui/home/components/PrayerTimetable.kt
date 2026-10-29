@@ -1,4 +1,4 @@
-package com.example.prayeralarm.ui.home.components
+﻿package com.example.prayeralarm.ui.home.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,13 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.NotificationsOff
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -84,7 +78,7 @@ fun PrayerTimetableRow(
             .clip(shape)
             .background(if (isNext) NavyCard else NavySurface)
             .border(1.dp, if (isNext) GoldPrimary.copy(alpha = 0.6f) else NavyBorder, shape)
-            .padding(start = 18.dp, end = 6.dp),
+            .padding(start = 18.dp, end = 18.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -120,32 +114,14 @@ fun PrayerTimetableRow(
             }
         }
 
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            Text(
-                text = item.time.format(timeFormatter),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontSize = 20.sp,
-                    fontFeatureSettings = "tnum"
-                ),
-                color = timeColor,
-                fontWeight = FontWeight.Bold
-            )
-            IconButton(
-                onClick = onToggleNotification,
-                modifier = Modifier.size(44.dp)
-            ) {
-                Icon(
-                    imageVector = if (item.isNotificationEnabled) {
-                        Icons.Default.Notifications
-                    } else {
-                        Icons.Default.NotificationsOff
-                    },
-                    contentDescription = "${item.type.displayName} alert " +
-                        if (item.isNotificationEnabled) "on" else "off",
-                    tint = if (item.isNotificationEnabled) GoldPrimary else TextTertiary,
-                    modifier = Modifier.size(20.dp)
-                )
-            }
-        }
+        Text(
+            text = item.time.format(timeFormatter),
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontSize = 20.sp,
+                fontFeatureSettings = "tnum"
+            ),
+            color = timeColor,
+            fontWeight = FontWeight.Bold
+        )
     }
 }

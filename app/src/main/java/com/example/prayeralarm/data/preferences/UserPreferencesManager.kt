@@ -29,6 +29,7 @@ class UserPreferencesManager(private val context: Context) {
         private val KEY_ALARM_COUNT = longPreferencesKey("alarm_count")
         private val KEY_ALARM_INTERVAL_MINUTES = longPreferencesKey("alarm_interval_minutes")
         private val KEY_ALARM_TIMING_MODE = stringPreferencesKey("alarm_timing_mode")
+    private val KEY_ENABLE_PERSISTENT_NOTIFICATION = booleanPreferencesKey("enable_persistent_notification")
     }
 
     /**

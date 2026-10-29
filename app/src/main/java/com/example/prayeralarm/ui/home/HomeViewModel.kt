@@ -7,6 +7,8 @@ import com.example.prayeralarm.data.repository.LocationRepository
 import com.example.prayeralarm.domain.calculator.CalculatedTimetable
 import com.example.prayeralarm.domain.calculator.PrayerTimeCalculator
 import com.example.prayeralarm.domain.model.PrayerType
+import com.example.prayeralarm.data.notification.NotificationHelper
+import com.example.prayeralarm.data.notification.NotificationHelper
 import com.example.prayeralarm.domain.model.SavedLocation
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,6 +40,8 @@ class HomeViewModel(
     private var cachedTimetable: CalculatedTimetable? = null
     private var cachedTimetableDate: LocalDate? = null
     private var cachedTomorrowTimetable: CalculatedTimetable? = null
+    private val notificationHelper = NotificationHelper()
+    private val notificationHelper: NotificationHelper = NotificationHelper()
 
     init {
         observeActiveLocation()

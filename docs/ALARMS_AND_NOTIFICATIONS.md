@@ -145,5 +145,12 @@ delegates scheduling to a fakeable `PrayerAlarmScheduler`. The current
 coordinator is covered independently and is now observed by an application
 ViewModel. Changes to the active location or persisted alarm settings trigger
 reconciliation for today and tomorrow. The in-memory identity list is bounded
-to that rolling horizon; durable identity storage and broadcast-driven date or
-timezone refresh remain future recovery work.
+to that rolling horizon; durable identity storage remains future work.
+
+`PrayerAlarmRecoveryReceiver` invokes the same bounded today/tomorrow
+reconciliation after boot, date changes, manual time changes, timezone changes,
+and package replacement. It uses `goAsync()` so Room/DataStore reads and
+astronomical calculation run off the receiver callback. Recovery reconstructs
+the bounded request-code set so a disabled plan can cancel alarms from the
+previous horizon. Manufacturer battery restrictions and physical delivery
+still require device verification.

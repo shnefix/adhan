@@ -21,6 +21,10 @@ sealed interface AlarmReconciliationResult {
 class PrayerAlarmCoordinator(
     private val scheduler: PrayerAlarmScheduler
 ) {
+    fun requestCodeFor(day: FajrScheduleDay, sequence: Int): Int {
+        return stableRequestCode(day.fajrAt, sequence)
+    }
+
     fun reconcile(
         days: List<FajrScheduleDay>,
         config: AlarmPlanConfig,

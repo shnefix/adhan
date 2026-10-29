@@ -95,3 +95,5 @@ All notable changes, fixes, and milestones across the 10 stages of the Prayer Al
   scheduler.
 - Connected active-location and persisted alarm-setting flows to scheduling for
   today and tomorrow, with explicit scheduler failure results.
+- Added broadcast recovery for boot, date/time/timezone changes, and package
+  replacement using the bounded reconciliation horizon.

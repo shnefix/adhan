@@ -1,4 +1,4 @@
-# Prayer Alarm Documentation Index
+# Prayer Ala    rm Documentation Index
 
 Welcome to the comprehensive documentation system for the **Prayer Alarm** native Android application.
 

@@ -1,15 +1,17 @@
 package com.example.prayeralarm.ui.home
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.prayeralarm.data.repository.LocationRepository
+import com.example.prayeralarm.alarm.CountdownNotificationService
 import com.example.prayeralarm.domain.calculator.CalculatedTimetable
+import com.example.prayeralarm.domain.calculator.NextPrayerCountdown
 import com.example.prayeralarm.domain.calculator.PrayerTimeCalculator
 import com.example.prayeralarm.domain.model.PrayerType
-import com.example.prayeralarm.data.notification.NotificationHelper
-import com.example.prayeralarm.data.notification.NotificationHelper
 import com.example.prayeralarm.domain.model.SavedLocation
+import com.example.prayeralarm.ui.alarms.AlarmPlanPreferences
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -20,7 +22,6 @@ import kotlinx.coroutines.launch
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneId
 
 /**
  * ViewModel managing Home Screen prayer timetable and real-time countdown.
@@ -30,7 +31,9 @@ import java.time.ZoneId
  */
 class HomeViewModel(
     private val locationRepository: LocationRepository? = null,
-    private val clock: Clock = Clock.systemDefaultZone()
+    private val clock: Clock = Clock.systemUTC(),
+    private val alarmPlanPreferences: AlarmPlanPreferences? = null,
+    private val notificationContext: Context? = null
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState(isLoading = true))
@@ -40,12 +43,28 @@ class HomeViewModel(
     private var cachedTimetable: CalculatedTimetable? = null
     private var cachedTimetableDate: LocalDate? = null
     private var cachedTomorrowTimetable: CalculatedTimetable? = null
-    private val notificationHelper = NotificationHelper()
-    private val notificationHelper: NotificationHelper = NotificationHelper()
+    private var persistentNotificationEnabled = false
 
     init {
         observeActiveLocation()
+        observeNotificationPlan()
         startCountdownTicker()
+    }
+
+    /**
+     * Keeps the persistent notification in sync with the persisted alarm-plan toggle.
+     * Disabling the plan cancels the notification immediately.
+     */
+    private fun observeNotificationPlan() {
+        val preferences = alarmPlanPreferences ?: return
+        viewModelScope.launch {
+            preferences.config.collect { config ->
+                persistentNotificationEnabled = config.enabled
+                        if (!config.enabled) {
+                            notificationContext?.let { CountdownNotificationService.stop(it) }
+                        }
+            }
+        }
     }
 
     private fun observeActiveLocation() {
@@ -73,11 +92,7 @@ class HomeViewModel(
      * Avoids recalculating table values on every countdown tick by caching the day's timetable.
      */
     private fun recalculateTimetable(location: SavedLocation) {
-        val zoneId = try {
-            ZoneId.of(location.timeZoneId)
-        } catch (e: Exception) {
-            ZoneId.of("Africa/Tunis")
-        }
+        val zoneId = PrayerTimeCalculator.zoneIdFor(location)
 
         val today = LocalDate.now(clock.withZone(zoneId))
         val timetable = PrayerTimeCalculator.calculateTimetable(location, today)
@@ -94,9 +109,7 @@ class HomeViewModel(
             tomorrowTimetable = cachedTomorrowTimetable
         )
 
-        val updatedItems = timetable.items.map { item ->
-            item.copy(isNextPrayer = (item.type == countdown.nextPrayerItem?.type))
-        }
+        val updatedItems = applyNextPrayerHighlight(timetable.items, countdown)
 
         _uiState.update { current ->
             current.copy(
@@ -112,6 +125,25 @@ class HomeViewModel(
                 errorMessage = null
             )
         }
+    }
+
+    /**
+     * Marks at most one row in today's timetable as the next prayer.
+     *
+     * After Isha the countdown targets tomorrow's Fajr. Tomorrow's time is shown
+     * in the next-prayer card only; no row in today's list is marked as "next"
+     * because none of today's rows represents that upcoming prayer.
+     */
+    private fun applyNextPrayerHighlight(
+        items: List<PrayerScheduleItem>,
+        countdown: NextPrayerCountdown
+    ): List<PrayerScheduleItem> {
+        val nextTodayType = if (countdown.isPastAllPrayersForDay) {
+            null
+        } else {
+            countdown.nextPrayerItem?.type
+        }
+        return items.map { item -> item.copy(isNextPrayer = item.type == nextTodayType) }
     }
 
     /**
@@ -136,11 +168,7 @@ class HomeViewModel(
         val timetable = cachedTimetable ?: return
         val timetableDate = cachedTimetableDate ?: return
 
-        val zoneId = try {
-            ZoneId.of(location.timeZoneId)
-        } catch (e: Exception) {
-            ZoneId.of("Africa/Tunis")
-        }
+        val zoneId = PrayerTimeCalculator.zoneIdFor(location)
 
         val currentDate = LocalDate.now(clock.withZone(zoneId))
 
@@ -159,9 +187,7 @@ class HomeViewModel(
             tomorrowTimetable = cachedTomorrowTimetable
         )
 
-        val updatedItems = timetable.items.map { item ->
-            item.copy(isNextPrayer = (item.type == countdown.nextPrayerItem?.type))
-        }
+        val updatedItems = applyNextPrayerHighlight(timetable.items, countdown)
 
         _uiState.update { current ->
             current.copy(
@@ -189,12 +215,19 @@ class HomeViewModel(
 
     class Factory(
         private val repository: LocationRepository,
-        private val clock: Clock = Clock.systemDefaultZone()
+        private val clock: Clock = Clock.systemUTC(),
+        private val alarmPlanPreferences: AlarmPlanPreferences? = null,
+        private val notificationContext: Context? = null
     ) : ViewModelProvider.Factory {
         @Suppress("UNCHECKED_CAST")
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
             if (modelClass.isAssignableFrom(HomeViewModel::class.java)) {
-                return HomeViewModel(repository, clock) as T
+                return HomeViewModel(
+                    repository,
+                    clock,
+                    alarmPlanPreferences,
+                    notificationContext
+                ) as T
             }
             throw IllegalArgumentException("Unknown ViewModel class")
         }

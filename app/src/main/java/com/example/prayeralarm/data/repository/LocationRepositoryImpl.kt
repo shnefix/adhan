@@ -3,7 +3,7 @@ package com.example.prayeralarm.data.repository
 import com.example.prayeralarm.data.local.dao.LocationDao
 import com.example.prayeralarm.data.local.entity.toDomain
 import com.example.prayeralarm.data.local.entity.toEntity
-import com.example.prayeralarm.data.preferences.UserPreferencesManager
+import com.example.prayeralarm.data.preferences.LocationSelectionStore
 import com.example.prayeralarm.domain.model.SavedLocation
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -15,13 +15,13 @@ import kotlinx.coroutines.flow.map
  */
 class LocationRepositoryImpl(
     private val locationDao: LocationDao,
-    private val preferencesManager: UserPreferencesManager
+    private val selectionStore: LocationSelectionStore
 ) : LocationRepository {
 
     override fun getAllLocations(): Flow<List<SavedLocation>> {
         return combine(
             locationDao.getAllLocations(),
-            preferencesManager.selectedLocationId
+            selectionStore.selectedLocationId
         ) { entities, selectedId ->
             entities.map { entity ->
                 entity.toDomain(isSelected = (entity.id == selectedId))
@@ -32,7 +32,7 @@ class LocationRepositoryImpl(
     override fun getActiveLocation(): Flow<SavedLocation?> {
         return combine(
             locationDao.getAllLocations(),
-            preferencesManager.selectedLocationId
+            selectionStore.selectedLocationId
         ) { entities, selectedId ->
             if (entities.isEmpty()) {
                 null
@@ -57,7 +57,7 @@ class LocationRepositoryImpl(
         )
         if (existing != null) {
             if (location.isDefault) {
-                preferencesManager.setSelectedLocationId(existing.id)
+                selectionStore.setSelectedLocationId(existing.id)
             }
             return existing.id
         }
@@ -66,7 +66,7 @@ class LocationRepositoryImpl(
         val newId = locationDao.insertLocation(entity)
         // If this is set as default or is the first inserted location, set as active
         if (location.isDefault) {
-            preferencesManager.setSelectedLocationId(newId)
+            selectionStore.setSelectedLocationId(newId)
         }
         return newId
     }
@@ -77,20 +77,20 @@ class LocationRepositoryImpl(
     }
 
     override suspend fun deleteLocation(location: SavedLocation): Boolean {
-        val selectedId = preferencesManager.selectedLocationId.first()
+        val selectedId = selectionStore.selectedLocationId.first()
         val rows = locationDao.deleteLocationById(location.id)
         if (rows > 0 && selectedId == location.id) {
             val replacement = locationDao.getAllLocations().first().firstOrNull()
             if (replacement == null) {
-                preferencesManager.clearSelectedLocationId()
+                selectionStore.clearSelectedLocationId()
             } else {
-                preferencesManager.setSelectedLocationId(replacement.id)
+                selectionStore.setSelectedLocationId(replacement.id)
             }
         }
         return rows > 0
     }
 
     override suspend fun setActiveLocation(locationId: Long) {
-        preferencesManager.setSelectedLocationId(locationId)
+        selectionStore.setSelectedLocationId(locationId)
     }
 }

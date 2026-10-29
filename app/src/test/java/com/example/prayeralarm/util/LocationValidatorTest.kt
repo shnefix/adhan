@@ -83,8 +83,18 @@ class LocationValidatorTest {
     }
 
     @Test
+    fun nonFiniteCoordinates_areRejected() {
+        assertNotNull(LocationValidator.validateLatitude("NaN"))
+        assertNotNull(LocationValidator.validateLatitude("Infinity"))
+        assertNotNull(LocationValidator.validateLatitude("-Infinity"))
+        assertNotNull(LocationValidator.validateLongitude("NaN"))
+        assertNotNull(LocationValidator.validateLongitude("Infinity"))
+        assertNotNull(LocationValidator.validateLongitude("-Infinity"))
+    }
+
+    @Test
     fun ianaTimezone_validation() {
-        // Valid canonical timezones
+        // Valid canonical timezones and IANA aliases
         assertNull(LocationValidator.validateTimezoneId("Africa/Tunis"))
         assertNull(LocationValidator.validateTimezoneId("Europe/Paris"))
         assertNull(LocationValidator.validateTimezoneId("UTC"))
@@ -94,6 +104,29 @@ class LocationValidatorTest {
         assertNotNull(LocationValidator.validateTimezoneId("NonExistent/City"))
         assertNotNull(LocationValidator.validateTimezoneId("random_string"))
         assertNotNull(LocationValidator.validateTimezoneId(""))
+    }
+
+    @Test
+    fun offsetStyleTimeZones_areRejected() {
+        // These resolve in java.time but have no historical DST rules and are not IANA IDs.
+        assertNotNull(LocationValidator.validateTimezoneId("+01:00"))
+        assertNotNull(LocationValidator.validateTimezoneId("-05:00"))
+        assertNotNull(LocationValidator.validateTimezoneId("Z"))
+        assertNotNull(LocationValidator.validateTimezoneId("UTC+01:00"))
+    }
+
+    @Test
+    fun fullValidation_rejectsOffsetZoneAndNonFiniteCoordinate() {
+        val result = LocationValidator.validate(
+            name = "Tunis",
+            latitudeStr = "NaN",
+            longitudeStr = "10.1815",
+            timezoneId = "+01:00"
+        )
+
+        assertFalse(result.isValid)
+        assertNotNull(result.latitudeError)
+        assertNotNull(result.timezoneError)
     }
 }
 

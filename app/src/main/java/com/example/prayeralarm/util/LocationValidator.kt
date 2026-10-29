@@ -61,6 +61,7 @@ object LocationValidator {
         val trimmed = latitudeStr.trim()
         if (trimmed.isEmpty()) return "Latitude is required"
         val lat = trimmed.toDoubleOrNull() ?: return "Latitude must be a valid decimal number"
+        if (!lat.isFinite()) return "Latitude must be a finite decimal number"
         return if (lat in MIN_LATITUDE..MAX_LATITUDE) {
             null
         } else {
@@ -72,6 +73,7 @@ object LocationValidator {
         val trimmed = longitudeStr.trim()
         if (trimmed.isEmpty()) return "Longitude is required"
         val lon = trimmed.toDoubleOrNull() ?: return "Longitude must be a valid decimal number"
+        if (!lon.isFinite()) return "Longitude must be a finite decimal number"
         return if (lon in MIN_LONGITUDE..MAX_LONGITUDE) {
             null
         } else {
@@ -79,19 +81,19 @@ object LocationValidator {
         }
     }
 
+    /**
+     * Accepts only canonical IANA region/alias IDs that java.time knows about.
+     *
+     * Offset-style IDs such as `+01:00`, `Z`, or `UTC+01:00` are deliberately
+     * rejected: they cannot describe historical DST rules, so they would make
+     * prayer times drift whenever the zone's offset changes.
+     */
     fun validateTimezoneId(timezoneId: String): String? {
         val trimmed = timezoneId.trim()
         if (trimmed.isEmpty()) return "Timezone ID is required"
-        return try {
-            val available = ZoneId.getAvailableZoneIds()
-            if (available.contains(trimmed)) {
-                null
-            } else {
-                // Also verify if ZoneId.of can resolve it
-                ZoneId.of(trimmed)
-                null
-            }
-        } catch (e: Exception) {
+        return if (ZoneId.getAvailableZoneIds().contains(trimmed)) {
+            null
+        } else {
             "Invalid IANA timezone ID (e.g., Africa/Tunis, Europe/London)"
         }
     }

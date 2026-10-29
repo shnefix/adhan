@@ -24,7 +24,7 @@ class PrayerAlarmSchedulingViewModel(
     locationRepository: LocationRepository,
     alarmPreferences: AlarmPlanPreferences,
     private val scheduler: PrayerAlarmScheduler,
-    private val clock: Clock = Clock.systemDefaultZone()
+    private val clock: Clock = Clock.systemUTC()
 ) : ViewModel() {
 
     private val _status = MutableStateFlow<AlarmReconciliationResult?>(null)

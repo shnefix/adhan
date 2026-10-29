@@ -88,7 +88,26 @@ All notifications on modern Android must belong to a channel:
 
 ---
 
-## 6. Revision Questions
+## 6. Persistent countdown lifecycle
+
+The next-prayer notification is maintained by
+`CountdownNotificationService`, a foreground service declared with
+`stopWithTask="false"`. The service recalculates the target prayer from the
+selected location's timezone and the current system `Instant` every second; it
+does not decrement a counter owned by a screen or `ViewModel`. This keeps the
+notification current when the activity is recreated, the screen is locked, or
+the activity task is removed from Recents. The stable notification ID and
+existing countdown channel are reused, so updates replace rather than
+duplicate the notification.
+
+The collapsed and expanded notification use the platform text layout with the
+prayer name as the title and a compact `countdown    scheduled time` content
+line. Android may truncate or reflow that line depending on the device's
+system notification template. The service still requires a visible foreground
+notification and `POST_NOTIFICATIONS` where applicable; force-stop and
+manufacturer-specific battery restrictions remain platform limitations.
+
+## 7. Revision Questions
 
 1. Why does `AlarmManager` lose all scheduled alarms when a device reboots?
 2. What is the difference between `WorkManager` and `AlarmManager`?

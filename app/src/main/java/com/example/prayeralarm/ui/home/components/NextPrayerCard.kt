@@ -10,14 +10,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,7 +27,6 @@ import androidx.compose.ui.unit.sp
 import com.example.prayeralarm.ui.home.PrayerScheduleItem
 import com.example.prayeralarm.ui.theme.GoldContainer
 import com.example.prayeralarm.ui.theme.GoldPrimary
-import com.example.prayeralarm.ui.theme.GoldSecondary
 import com.example.prayeralarm.ui.theme.NavyBorder
 import com.example.prayeralarm.ui.theme.NavyCard
 import com.example.prayeralarm.ui.theme.NavyDark
@@ -50,26 +45,21 @@ fun NextPrayerCard(
     isSampleData: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val gradientBrush = Brush.verticalGradient(
-        colors = listOf(
-            NavyCard,
-            NavySurface
-        )
-    )
+    val gradientBrush = Brush.verticalGradient(colors = listOf(NavyCard, NavySurface))
 
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 6.dp)
-            .border(1.dp, GoldPrimary.copy(alpha = 0.35f), RoundedCornerShape(20.dp)),
-        shape = RoundedCornerShape(20.dp),
+            .padding(horizontal = 16.dp)
+            .border(1.dp, GoldPrimary.copy(alpha = 0.35f), RoundedCornerShape(18.dp)),
+        shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = NavySurface)
     ) {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(gradientBrush)
-                .padding(20.dp)
+                .padding(horizontal = 16.dp, vertical = 14.dp)
         ) {
             Column {
                 Row(
@@ -78,63 +68,52 @@ fun NextPrayerCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "NEXT PRAYER",
-                                style = MaterialTheme.typography.labelLarge,
-                                color = GoldPrimary,
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 1.2.sp
-                            )
-                            if (isSampleData) {
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Box(
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(6.dp))
-                                        .background(GoldContainer)
-                                        .padding(horizontal = 6.dp, vertical = 2.dp)
-                                ) {
-                                    Text(
-                                        text = "Sample Mock",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = OnGoldContainer,
-                                        fontSize = 10.sp
-                                    )
-                                }
+                        if (isSampleData) {
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(6.dp))
+                                    .background(GoldContainer)
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            ) {
+                                Text(
+                                    text = "Sample Mock",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = OnGoldContainer,
+                                    fontSize = 10.sp
+                                )
                             }
+                            Spacer(modifier = Modifier.height(2.dp))
                         }
-                        Spacer(modifier = Modifier.height(2.dp))
                         Row(verticalAlignment = Alignment.Bottom) {
                             Text(
                                 text = nextPrayer?.type?.displayName ?: "Upcoming",
-                                style = MaterialTheme.typography.headlineLarge,
+                                style = MaterialTheme.typography.headlineMedium,
                                 color = TextPrimary,
                                 fontWeight = FontWeight.Bold
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = nextPrayer?.type?.arabicName ?: "",
-                                style = MaterialTheme.typography.titleLarge,
+                                style = MaterialTheme.typography.titleMedium,
                                 color = GoldPrimary.copy(alpha = 0.85f),
                                 fontWeight = FontWeight.Normal
                             )
                         }
                     }
 
-                    // Scheduled time badge
                     if (nextPrayer != null) {
                         val formattedTime = nextPrayer.time.format(DateTimeFormatter.ofPattern("HH:mm"))
                         Box(
                             modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
+                                .clip(RoundedCornerShape(10.dp))
                                 .background(NavyDark)
-                                .border(1.dp, NavyBorder, RoundedCornerShape(12.dp))
-                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                                .border(1.dp, NavyBorder, RoundedCornerShape(10.dp))
+                                .padding(horizontal = 10.dp, vertical = 6.dp),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 text = formattedTime,
-                                style = MaterialTheme.typography.titleLarge,
+                                style = MaterialTheme.typography.titleMedium,
                                 color = TextPrimary,
                                 fontWeight = FontWeight.Bold
                             )
@@ -142,35 +121,17 @@ fun NextPrayerCard(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(18.dp))
-
-                // Countdown unit boxes
-                Text(
-                    text = "Time Remaining",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = TextSecondary
-                )
-                Spacer(modifier = Modifier.height(6.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     CountdownTimeUnit(value = remainingHours, label = "HOURS")
-                    Text(
-                        text = ":",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = GoldPrimary,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text(":", style = MaterialTheme.typography.titleLarge, color = GoldPrimary, fontWeight = FontWeight.Bold)
                     CountdownTimeUnit(value = remainingMinutes, label = "MINS")
-                    Text(
-                        text = ":",
-                        style = MaterialTheme.typography.headlineMedium,
-                        color = GoldPrimary,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Text(":", style = MaterialTheme.typography.titleLarge, color = GoldPrimary, fontWeight = FontWeight.Bold)
                     CountdownTimeUnit(value = remainingSeconds, label = "SECS")
                 }
             }
@@ -186,16 +147,16 @@ private fun CountdownTimeUnit(
 ) {
     Box(
         modifier = modifier
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(10.dp))
             .background(NavyDark.copy(alpha = 0.8f))
-            .border(1.dp, NavyBorder.copy(alpha = 0.7f), RoundedCornerShape(12.dp))
-            .padding(horizontal = 14.dp, vertical = 8.dp),
+            .border(1.dp, NavyBorder.copy(alpha = 0.7f), RoundedCornerShape(10.dp))
+            .padding(horizontal = 12.dp, vertical = 6.dp),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
                 text = String.format("%02d", value.coerceAtLeast(0)),
-                style = MaterialTheme.typography.headlineMedium,
+                style = MaterialTheme.typography.titleLarge,
                 color = GoldPrimary,
                 fontWeight = FontWeight.Bold
             )
@@ -209,4 +170,3 @@ private fun CountdownTimeUnit(
         }
     }
 }
-

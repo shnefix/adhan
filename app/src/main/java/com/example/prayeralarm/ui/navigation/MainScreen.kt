@@ -39,6 +39,7 @@ import com.example.prayeralarm.ui.alarms.AlarmPlanScreen
 import com.example.prayeralarm.ui.alarms.AlarmPlanViewModel
 import com.example.prayeralarm.alarm.PrayerAlarmSchedulingViewModel
 import com.example.prayeralarm.ui.settings.SettingsScreen
+import com.example.prayeralarm.ui.settings.SettingsViewModel
 import com.example.prayeralarm.ui.locations.LocationsScreen
 import com.example.prayeralarm.ui.locations.LocationsViewModel
 import com.example.prayeralarm.ui.theme.GoldPrimary
@@ -54,13 +55,20 @@ fun MainScreen() {
     val locationRepository = context.locationRepository
 
     val homeViewModel: HomeViewModel = viewModel(
-        factory = HomeViewModel.Factory(locationRepository)
+        factory = HomeViewModel.Factory(
+            repository = locationRepository,
+            alarmPlanPreferences = context.alarmPlanPreferences,
+            notificationContext = context.applicationContext
+        )
     )
     val locationsViewModel: LocationsViewModel = viewModel(
         factory = LocationsViewModel.Factory(locationRepository)
     )
     val alarmPlanViewModel: AlarmPlanViewModel = viewModel(
         factory = AlarmPlanViewModel.Factory(context.alarmPlanPreferences)
+    )
+    val settingsViewModel: SettingsViewModel = viewModel(
+        factory = SettingsViewModel.Factory(locationRepository, context.preferencesManager)
     )
     viewModel<PrayerAlarmSchedulingViewModel>(
         factory = PrayerAlarmSchedulingViewModel.Factory(
@@ -88,7 +96,6 @@ fun MainScreen() {
 
     val screens = listOf(
         Screen.Home,
-        Screen.Locations,
         Screen.Alarms,
         Screen.Settings
     )
@@ -137,8 +144,6 @@ fun MainScreen() {
                 val uiState by homeViewModel.uiState.collectAsState()
                 HomeScreen(
                     uiState = uiState,
-                    onLocationClick = { navigateToTopLevel(Screen.Locations.route) },
-                    onSettingsClick = { navigateToTopLevel(Screen.Settings.route) },
                     onToggleNotification = { prayerType ->
                         homeViewModel.togglePrayerNotification(prayerType)
                     }
@@ -182,7 +187,10 @@ fun MainScreen() {
             }
 
             composable(Screen.Settings.route) {
-                SettingsScreen()
+                SettingsScreen(
+                    viewModel = settingsViewModel,
+                    onLocationChange = { navigateToTopLevel(Screen.Locations.route) }
+                )
             }
         }
     }

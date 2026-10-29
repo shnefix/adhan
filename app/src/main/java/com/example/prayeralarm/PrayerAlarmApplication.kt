@@ -1,11 +1,12 @@
 package com.example.prayeralarm
 
 import android.app.Application
+import com.example.prayeralarm.data.local.LocationSeeder
 import com.example.prayeralarm.data.local.PrayerAlarmDatabase
 import com.example.prayeralarm.data.preferences.UserPreferencesManager
+import com.example.prayeralarm.data.notification.NotificationHelper
 import com.example.prayeralarm.data.repository.LocationRepository
 import com.example.prayeralarm.data.repository.LocationRepositoryImpl
-import com.example.prayeralarm.alarm.NotificationChannels
 import com.example.prayeralarm.alarm.AndroidAlarmScheduler
 import com.example.prayeralarm.alarm.PrayerAlarmScheduler
 import com.example.prayeralarm.ui.alarms.AlarmPlanPreferences
@@ -36,7 +37,7 @@ class PrayerAlarmApplication : Application() {
     val locationRepository: LocationRepository by lazy {
         LocationRepositoryImpl(
             locationDao = database.locationDao(),
-            preferencesManager = preferencesManager
+            selectionStore = preferencesManager
         )
     }
 
@@ -50,13 +51,13 @@ class PrayerAlarmApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        NotificationChannels.create(this)
-        // Ensure default locations are seeded if empty
+        NotificationHelper.init(this)
+        // Seed exactly once on a fresh install and repair a missing/dangling selection.
         applicationScope.launch {
-            if (database.locationDao().getLocationCount() == 0) {
-                val locationId = PrayerAlarmDatabase.populateInitialLocations(database.locationDao())
-                preferencesManager.setSelectedLocationId(locationId)
-            }
+            LocationSeeder(
+                locationDao = database.locationDao(),
+                selectionStore = preferencesManager
+            ).seedIfNeeded()
         }
     }
 }

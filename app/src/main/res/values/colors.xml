@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="navy_dark">#0B132B</color>
+    <color name="notification_countdown">#66BB6A</color>
+    <color name="notification_text">#F5F7FA</color>
 </resources>
-

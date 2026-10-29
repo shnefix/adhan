@@ -21,10 +21,11 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 /**
  * Manages key-value application settings using Jetpack DataStore Preferences.
  */
-class UserPreferencesManager(private val context: Context) {
+class UserPreferencesManager(private val context: Context) : LocationSelectionStore {
 
     companion object {
         val KEY_SELECTED_LOCATION_ID = longPreferencesKey("selected_location_id")
+        val KEY_CALCULATION_METHOD = stringPreferencesKey("calculation_method")
         private val KEY_ALARM_ENABLED = booleanPreferencesKey("alarm_enabled")
         private val KEY_ALARM_COUNT = longPreferencesKey("alarm_count")
         private val KEY_ALARM_INTERVAL_MINUTES = longPreferencesKey("alarm_interval_minutes")
@@ -32,10 +33,30 @@ class UserPreferencesManager(private val context: Context) {
     private val KEY_ENABLE_PERSISTENT_NOTIFICATION = booleanPreferencesKey("enable_persistent_notification")
     }
 
+    val calculationMethod: Flow<com.example.prayeralarm.domain.calculator.PrayerCalculationMethod> = context.dataStore.data
+        .catch { exception ->
+            if (exception is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw exception
+            }
+        }
+        .map { preferences ->
+            preferences[KEY_CALCULATION_METHOD]?.let { name ->
+                runCatching { com.example.prayeralarm.domain.calculator.PrayerCalculationMethod.valueOf(name) }.getOrNull()
+            } ?: com.example.prayeralarm.domain.calculator.PrayerCalculationMethod.DEFAULT
+        }
+
+    suspend fun setCalculationMethod(method: com.example.prayeralarm.domain.calculator.PrayerCalculationMethod) {
+        context.dataStore.edit { preferences ->
+            preferences[KEY_CALCULATION_METHOD] = method.name
+        }
+    }
+
     /**
      * Observes the active location ID. Emits null if no location has been selected.
      */
-    val selectedLocationId: Flow<Long?> = context.dataStore.data
+    override val selectedLocationId: Flow<Long?> = context.dataStore.data
         .catch { exception ->
             if (exception is IOException) {
                 emit(emptyPreferences())
@@ -50,7 +71,7 @@ class UserPreferencesManager(private val context: Context) {
     /**
      * Saves the active location ID.
      */
-    suspend fun setSelectedLocationId(locationId: Long) {
+    override suspend fun setSelectedLocationId(locationId: Long) {
         context.dataStore.edit { preferences ->
             preferences[KEY_SELECTED_LOCATION_ID] = locationId
         }
@@ -59,7 +80,7 @@ class UserPreferencesManager(private val context: Context) {
     /**
      * Clears the active location ID.
      */
-    suspend fun clearSelectedLocationId() {
+    override suspend fun clearSelectedLocationId() {
         context.dataStore.edit { preferences ->
             preferences.remove(KEY_SELECTED_LOCATION_ID)
         }

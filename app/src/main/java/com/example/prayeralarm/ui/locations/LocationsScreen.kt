@@ -29,7 +29,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.prayeralarm.domain.model.SavedLocation
 import com.example.prayeralarm.ui.locations.components.AddEditLocationDialog
@@ -39,7 +38,6 @@ import com.example.prayeralarm.ui.theme.GoldPrimary
 import com.example.prayeralarm.ui.theme.NavyCard
 import com.example.prayeralarm.ui.theme.NavyDark
 import com.example.prayeralarm.ui.theme.TextPrimary
-import com.example.prayeralarm.ui.theme.TextSecondary
 import com.example.prayeralarm.util.ValidationResult
 
 @Composable
@@ -104,12 +102,6 @@ fun LocationsScreen(
                             style = MaterialTheme.typography.titleLarge,
                             color = TextPrimary,
                             fontWeight = FontWeight.Bold
-                        )
-
-                        Text(
-                            text = "Tap a location to set it as active. Room database persists your changes.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = TextSecondary
                         )
 
                         Spacer(modifier = Modifier.height(12.dp))
@@ -183,15 +175,6 @@ private fun EmptyLocationsPlaceholder(modifier: Modifier = Modifier) {
                 fontWeight = FontWeight.Bold
             )
 
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = "Tap the + button below to add your city with manual latitude, longitude, and IANA timezone ID.",
-                style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary,
-                textAlign = TextAlign.Center
-            )
         }
     }
 }
-

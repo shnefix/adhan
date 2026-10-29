@@ -23,8 +23,6 @@ import com.example.prayeralarm.ui.theme.PrayerAlarmTheme
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
-    onLocationClick: () -> Unit,
-    onSettingsClick: () -> Unit,
     onToggleNotification: (PrayerType) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -39,17 +37,13 @@ fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(bottom = 24.dp)
+                .padding(bottom = 16.dp)
         ) {
             HomeHeader(
-                locationName = uiState.selectedLocation.name,
-                currentDate = uiState.currentDate,
-                hijriDate = uiState.hijriDate,
-                onLocationClick = onLocationClick,
-                onSettingsClick = onSettingsClick
+                hijriDate = uiState.hijriDate
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
             NextPrayerCard(
                 nextPrayer = uiState.nextPrayer,
@@ -59,7 +53,7 @@ fun HomeScreen(
                 isSampleData = uiState.isSampleData
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
             PrayerTimetable(
                 timetable = uiState.prayerTimetable,
@@ -75,8 +69,6 @@ fun HomeScreenPreview() {
     PrayerAlarmTheme(darkTheme = true) {
         HomeScreen(
             uiState = HomeViewModel.createPreviewState(),
-            onLocationClick = {},
-            onSettingsClick = {},
             onToggleNotification = {}
         )
     }
@@ -96,4 +88,3 @@ fun NextPrayerCardPreview() {
         )
     }
 }
-

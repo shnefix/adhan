@@ -90,3 +90,6 @@ All notable changes, fixes, and milestones across the 10 stages of the Prayer Al
   Compose state and the calculated Home timetable.
 - Persisted alarm-plan enabled state, count, interval, and timing mode through
   DataStore and moved authoritative UI state into `AlarmPlanViewModel`.
+- Added a deterministic `PrayerAlarmCoordinator` that filters past alarms,
+  cancels obsolete identities, and delegates desired schedules to a fakeable
+  scheduler.

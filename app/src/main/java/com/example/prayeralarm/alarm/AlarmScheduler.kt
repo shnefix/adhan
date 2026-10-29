@@ -20,13 +20,18 @@ sealed interface AlarmScheduleResult {
     data class Invalid(val message: String) : AlarmScheduleResult
 }
 
-class AndroidAlarmScheduler(context: Context) {
+interface PrayerAlarmScheduler {
+    fun schedule(alarms: List<ScheduledPrayerAlarm>): AlarmScheduleResult
+    fun cancel(alarms: List<ScheduledPrayerAlarm>): AlarmScheduleResult
+}
+
+class AndroidAlarmScheduler(context: Context) : PrayerAlarmScheduler {
 
     private val applicationContext = context.applicationContext
     private val alarmManager =
         applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
-    fun schedule(alarms: List<ScheduledPrayerAlarm>): AlarmScheduleResult {
+    override fun schedule(alarms: List<ScheduledPrayerAlarm>): AlarmScheduleResult {
         if (alarms.any { it.triggerAtMillis <= 0L || it.requestCode < 0 }) {
             return AlarmScheduleResult.Invalid("Alarm identity and trigger time must be positive.")
         }
@@ -46,7 +51,7 @@ class AndroidAlarmScheduler(context: Context) {
         return AlarmScheduleResult.Scheduled
     }
 
-    fun cancel(alarms: List<ScheduledPrayerAlarm>): AlarmScheduleResult {
+    override fun cancel(alarms: List<ScheduledPrayerAlarm>): AlarmScheduleResult {
         alarms.forEach { alarm ->
             alarmManager.cancel(pendingIntent(alarm))
         }

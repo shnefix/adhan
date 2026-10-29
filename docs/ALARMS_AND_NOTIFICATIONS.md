@@ -137,3 +137,10 @@ five alarms, ten-minute intervals, combined pre-Fajr mode, and disabled plan.
 errors to the UI, and rejects non-positive count or interval values before
 writing. The current checkpoint persists settings but does not yet reconcile
 them with `AlarmManager`.
+
+`PrayerAlarmCoordinator` is the reconciliation boundary for the next
+integration step. It converts one or more timezone-aware Fajr timestamps into
+future `ScheduledPrayerAlarm` values, cancels obsolete request codes, and
+delegates scheduling to a fakeable `PrayerAlarmScheduler`. The current
+coordinator is covered independently; application lifecycle wiring and
+persisted scheduled-alarm identity storage remain separate work.

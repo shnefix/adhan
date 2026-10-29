@@ -1,0 +1,99 @@
+package com.example.prayeralarm.util
+
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+/**
+ * Unit tests verifying location parameter validation:
+ * - Latitude bounds (-90.0 to 90.0)
+ * - Longitude bounds (-180.0 to 180.0)
+ * - IANA timezone ID resolution via java.time.ZoneId
+ * - Name length and emptiness constraints
+ */
+class LocationValidatorTest {
+
+    @Test
+    fun validLocation_passesValidation() {
+        val result = LocationValidator.validate(
+            name = "Tunis",
+            latitudeStr = "36.8065",
+            longitudeStr = "10.1815",
+            timezoneId = "Africa/Tunis"
+        )
+
+        assertTrue("Expected valid location to pass", result.isValid)
+        assertNull(result.nameError)
+        assertNull(result.latitudeError)
+        assertNull(result.longitudeError)
+        assertNull(result.timezoneError)
+    }
+
+    @Test
+    fun emptyName_failsValidation() {
+        val result = LocationValidator.validateName("   ")
+        assertNotNull("Expected error for empty name", result)
+        assertEquals("Location name cannot be empty", result)
+    }
+
+    @Test
+    fun shortName_failsValidation() {
+        val result = LocationValidator.validateName("A")
+        assertNotNull("Expected error for single character name", result)
+    }
+
+    @Test
+    fun excessiveLengthName_failsValidation() {
+        val longName = "A".repeat(51)
+        val result = LocationValidator.validateName(longName)
+        assertNotNull("Expected error for name > 50 chars", result)
+    }
+
+    @Test
+    fun latitudeBounds_validation() {
+        // Valid edge cases
+        assertNull(LocationValidator.validateLatitude("-90.0"))
+        assertNull(LocationValidator.validateLatitude("0.0"))
+        assertNull(LocationValidator.validateLatitude("90.0"))
+        assertNull(LocationValidator.validateLatitude("36.8065"))
+
+        // Invalid cases
+        assertNotNull(LocationValidator.validateLatitude("-90.0001"))
+        assertNotNull(LocationValidator.validateLatitude("90.0001"))
+        assertNotNull(LocationValidator.validateLatitude("abc"))
+        assertNotNull(LocationValidator.validateLatitude(""))
+    }
+
+    @Test
+    fun longitudeBounds_validation() {
+        // Valid edge cases
+        assertNull(LocationValidator.validateLongitude("-180.0"))
+        assertNull(LocationValidator.validateLongitude("0.0"))
+        assertNull(LocationValidator.validateLongitude("180.0"))
+        assertNull(LocationValidator.validateLongitude("10.1815"))
+
+        // Invalid cases
+        assertNotNull(LocationValidator.validateLongitude("-180.0001"))
+        assertNotNull(LocationValidator.validateLongitude("180.0001"))
+        assertNotNull(LocationValidator.validateLongitude("invalid"))
+        assertNotNull(LocationValidator.validateLongitude(""))
+    }
+
+    @Test
+    fun ianaTimezone_validation() {
+        // Valid canonical timezones
+        assertNull(LocationValidator.validateTimezoneId("Africa/Tunis"))
+        assertNull(LocationValidator.validateTimezoneId("Europe/Paris"))
+        assertNull(LocationValidator.validateTimezoneId("UTC"))
+        assertNull(LocationValidator.validateTimezoneId("Asia/Riyadh"))
+
+        // Invalid timezone IDs
+        assertNotNull(LocationValidator.validateTimezoneId("NonExistent/City"))
+        assertNotNull(LocationValidator.validateTimezoneId("random_string"))
+        assertNotNull(LocationValidator.validateTimezoneId(""))
+    }
+}
+
